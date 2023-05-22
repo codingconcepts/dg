@@ -12,7 +12,8 @@ Create a config file:
       value: ${gen uuid}
     - name: full_name
       value: ${gen first_name} ${gen last_name}
-    - name: dob
+      null_percentage: 10
+    - name: date_of_birth
       value: ${gen date}
 ```
 
