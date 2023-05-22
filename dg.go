@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"path"
@@ -15,11 +16,63 @@ import (
 
 	"github.com/go-faker/faker/v4"
 	"github.com/samber/lo"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 var (
 	refExtractor = regexp.MustCompile(`ref (\w+) (\w+)`)
+
+	replacements = map[string]func() string{
+		"${gen latitude}":               func() string { return strconv.FormatFloat(faker.Latitude(), 'f', -1, 64) },
+		"${gen longitude}":              func() string { return strconv.FormatFloat(faker.Longitude(), 'f', -1, 64) },
+		"${gen address}":                func() string { return faker.GetRealAddress().Address },
+		"${gen city}":                   func() string { return faker.GetRealAddress().City },
+		"${gen state}":                  func() string { return faker.GetRealAddress().State },
+		"${gen postcode}":               func() string { return faker.GetRealAddress().PostalCode },
+		"${gen unix_time}":              func() string { return strconv.FormatInt(faker.UnixTime(), 10) },
+		"${gen date}":                   func() string { return faker.Date() },
+		"${gen time}":                   func() string { return faker.TimeString() },
+		"${gen month_name}":             func() string { return faker.MonthName() },
+		"${gen year}":                   func() string { return faker.YearString() },
+		"${gen day_of_week}":            func() string { return faker.DayOfWeek() },
+		"${gen day_of_month}":           func() string { return faker.DayOfMonth() },
+		"${gen timestamp}":              func() string { return faker.Timestamp() },
+		"${gen century}":                func() string { return faker.Century() },
+		"${gen timezone}":               func() string { return faker.Timezone() },
+		"${gen timeperiod}":             func() string { return faker.Timeperiod() },
+		"${gen email}":                  func() string { return faker.Email() },
+		"${gen mac_address}":            func() string { return faker.MacAddress() },
+		"${gen domain_name}":            func() string { return faker.DomainName() },
+		"${gen url}":                    func() string { return faker.URL() },
+		"${gen user_name}":              func() string { return faker.Username() },
+		"${gen ipv4}":                   func() string { return faker.IPv4() },
+		"${gen ipv6}":                   func() string { return faker.IPv6() },
+		"${gen password}":               func() string { return faker.Password() },
+		"${gen word}":                   func() string { return faker.Word() },
+		"${gen sentence}":               func() string { return faker.Sentence() },
+		"${gen paragraph}":              func() string { return faker.Paragraph() },
+		"${gen cc_type}":                func() string { return faker.CCType() },
+		"${gen cc_number}":              func() string { return faker.CCNumber() },
+		"${gen currency}":               func() string { return faker.Currency() },
+		"${gen amount_with_currency}":   func() string { return faker.AmountWithCurrency() },
+		"${gen title_male}":             func() string { return faker.TitleMale() },
+		"${gen title_female}":           func() string { return faker.TitleFemale() },
+		"${gen first_name}":             func() string { return faker.FirstName() },
+		"${gen first_name_male}":        func() string { return faker.FirstNameMale() },
+		"${gen first_name_female}":      func() string { return faker.FirstNameFemale() },
+		"${gen last_name}":              func() string { return faker.LastName() },
+		"${gen name}":                   func() string { return faker.Name() },
+		"${gen phone_number}":           func() string { return faker.Phonenumber() },
+		"${gen toll_free_phone_number}": func() string { return faker.TollFreePhoneNumber() },
+		"${gen e164_phone_number}":      func() string { return faker.E164PhoneNumber() },
+		"${gen uuid_hyphen}":            func() string { return faker.UUIDHyphenated() },
+		"${gen uuid}":                   func() string { return faker.UUIDDigit() },
+		"${gen bool}":                   func() string { return strconv.FormatBool(rand.Int()%2 == 0) },
+		"${gen int8}":                   func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt8), 10) },
+		"${gen int16}":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt16), 10) },
+		"${gen int32}":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt32), 10) },
+		"${gen int64}":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt64), 10) },
+	}
 )
 
 func main() {
@@ -59,8 +112,9 @@ type table struct {
 }
 
 type column struct {
-	Name  string `yaml:"name"`
-	Value string `yaml:"value"`
+	Name           string `yaml:"name"`
+	Value          string `yaml:"value"`
+	NullPercentage int    `yaml:"null_percentage"`
 }
 
 type csvFile struct {
@@ -149,7 +203,7 @@ func generateRefRow(columns []column, refHeader []string, refLine []string) []st
 		if value, ok := getRefColumnValue(c.Value, refHeader, refLine); ok {
 			line = append(line, value)
 		} else {
-			line = append(line, replacePlaceholders(c.Value))
+			line = append(line, replacePlaceholders(c))
 		}
 	}
 
@@ -163,61 +217,20 @@ func generateRow(columns []column, files map[string]csvFile) []string {
 		if value, ok := getRefTableColumnValue(c.Value, files); ok {
 			line = append(line, value)
 		} else {
-			line = append(line, replacePlaceholders(c.Value))
+			line = append(line, replacePlaceholders(c))
 		}
 	}
 
 	return line
 }
 
-func replacePlaceholders(s string) string {
-	replacements := map[string]func() string{
-		"${gen latitude}":               func() string { return strconv.FormatFloat(faker.Latitude(), 'f', -1, 64) },
-		"${gen longitude}":              func() string { return strconv.FormatFloat(faker.Longitude(), 'f', -1, 64) },
-		"${gen address}":                func() string { return faker.GetRealAddress().Address },
-		"${gen city}":                   func() string { return faker.GetRealAddress().City },
-		"${gen state}":                  func() string { return faker.GetRealAddress().State },
-		"${gen postcode}":               func() string { return faker.GetRealAddress().PostalCode },
-		"${gen unix_time}":              func() string { return strconv.FormatInt(faker.UnixTime(), 10) },
-		"${gen date}":                   func() string { return faker.Date() },
-		"${gen time}":                   func() string { return faker.TimeString() },
-		"${gen month_name}":             func() string { return faker.MonthName() },
-		"${gen year}":                   func() string { return faker.YearString() },
-		"${gen day_of_week}":            func() string { return faker.DayOfWeek() },
-		"${gen day_of_month}":           func() string { return faker.DayOfMonth() },
-		"${gen timestamp}":              func() string { return faker.Timestamp() },
-		"${gen century}":                func() string { return faker.Century() },
-		"${gen timezone}":               func() string { return faker.Timezone() },
-		"${gen timeperiod}":             func() string { return faker.Timeperiod() },
-		"${gen email}":                  func() string { return faker.Email() },
-		"${gen mac_address}":            func() string { return faker.MacAddress() },
-		"${gen domain_name}":            func() string { return faker.DomainName() },
-		"${gen url}":                    func() string { return faker.URL() },
-		"${gen user_name}":              func() string { return faker.Username() },
-		"${gen ipv4}":                   func() string { return faker.IPv4() },
-		"${gen ipv6}":                   func() string { return faker.IPv6() },
-		"${gen password}":               func() string { return faker.Password() },
-		"${gen word}":                   func() string { return faker.Word() },
-		"${gen sentence}":               func() string { return faker.Sentence() },
-		"${gen paragraph}":              func() string { return faker.Paragraph() },
-		"${gen cc_type}":                func() string { return faker.CCType() },
-		"${gen cc_number}":              func() string { return faker.CCNumber() },
-		"${gen currency}":               func() string { return faker.Currency() },
-		"${gen amount_with_currency}":   func() string { return faker.AmountWithCurrency() },
-		"${gen title_male}":             func() string { return faker.TitleMale() },
-		"${gen title_female}":           func() string { return faker.TitleFemale() },
-		"${gen first_name}":             func() string { return faker.FirstName() },
-		"${gen first_name_male}":        func() string { return faker.FirstNameMale() },
-		"${gen first_name_female}":      func() string { return faker.FirstNameFemale() },
-		"${gen last_name}":              func() string { return faker.LastName() },
-		"${gen name}":                   func() string { return faker.Name() },
-		"${gen phone_number}":           func() string { return faker.Phonenumber() },
-		"${gen toll_free_phone_number}": func() string { return faker.TollFreePhoneNumber() },
-		"${gen e164_phone_number}":      func() string { return faker.E164PhoneNumber() },
-		"${gen uuid_hyphen}":            func() string { return faker.UUIDHyphenated() },
-		"${gen uuid}":                   func() string { return faker.UUIDDigit() },
+func replacePlaceholders(c column) string {
+	r := rand.Intn(100)
+	if r < c.NullPercentage {
+		return ""
 	}
 
+	s := c.Value
 	for k, v := range replacements {
 		if strings.Contains(s, k) {
 			s = strings.ReplaceAll(s, k, v())
