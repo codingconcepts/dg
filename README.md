@@ -21,7 +21,39 @@ Run the application:
 $ dg -c your_config_file.yaml -o your_output_dir 
 ```
 
-### Todo
+### Todos
+
+Support for multiple foreach tables, resulting in a Cartesian product of both:
+``` yaml
+- table: person
+  ...
+
+- table: event
+  ...
+
+- table: person_event
+  foreach: [person, event]
+```
+
+For example:
+```
+# person
+id,name
+1,a
+2,b
+
+# event
+id,name
+3,wacken
+4,download
+
+# person_event
+person_id,event_id
+1,3
+1,4
+2,3
+2,4
+```
 
 Add progress bar
 ``` go
