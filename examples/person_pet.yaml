@@ -1,0 +1,28 @@
+- table: person
+  count: 10000
+  columns:
+    - name: id
+      value: ${gen uuid}
+    - name: full_name
+      value: ${gen first_name} ${gen last_name}
+    - name: dob
+      value: ${gen date}
+
+- table: account
+  foreach: person
+  count: 1
+  columns:
+    - name: person_id
+      value: ${ref person id}
+    - name: email
+      value: ${gen email}
+
+- table: pet
+  count: 1000
+  columns:
+    - name: id
+      value: ${gen uuid}
+    - name: name
+      value: ${gen first_name}
+    - person_id:
+      value: ${ref person id}
