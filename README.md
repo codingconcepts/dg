@@ -205,6 +205,50 @@ Run the application:
 $ dg -c your_config_file.yaml -o your_output_dir 
 ```
 
+This will output:
+
+```
+your_output_dir
+├── event.csv
+├── person.csv
+├── person_event.csv
+└── person_type.csv
+```
+
+If you're following along locally, spin up a local web server using something like python's `http.server`:
+
+```
+$ python3 -m http.server 3000 -d your_output_dir
+```
+
+Then import the files as you would any other; here's an example insert into CockroachDB:
+
+``` sql
+IMPORT INTO "person" ("id")
+CSV DATA (
+    'http://localhost:3000/person.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "event" ("id")
+CSV DATA (
+    'http://localhost:3000/event.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "person_type" ("id", "name")
+CSV DATA (
+    'http://localhost:3000/person_type.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "person_event" ("person_id", "event_id", "id", "person_type")
+CSV DATA (
+    'http://localhost:3000/person_event.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+```
+
 ### Functions
 
 | Name | Example |
