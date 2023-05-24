@@ -9,77 +9,17 @@ import (
 	"math/rand"
 	"os"
 	"path"
-	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/samber/lo"
-	"gopkg.in/yaml.v3"
-)
-
-var (
-	refExtractor = regexp.MustCompile(`ref (\w+) (\w+)`)
-
-	replacements = map[string]func() string{
-		"${gen latitude}":               func() string { return strconv.FormatFloat(faker.Latitude(), 'f', -1, 64) },
-		"${gen longitude}":              func() string { return strconv.FormatFloat(faker.Longitude(), 'f', -1, 64) },
-		"${gen address}":                func() string { return faker.GetRealAddress().Address },
-		"${gen city}":                   func() string { return faker.GetRealAddress().City },
-		"${gen state}":                  func() string { return faker.GetRealAddress().State },
-		"${gen postcode}":               func() string { return faker.GetRealAddress().PostalCode },
-		"${gen unix_time}":              func() string { return strconv.FormatInt(faker.UnixTime(), 10) },
-		"${gen date}":                   func() string { return faker.Date() },
-		"${gen time}":                   func() string { return faker.TimeString() },
-		"${gen month_name}":             func() string { return faker.MonthName() },
-		"${gen year}":                   func() string { return faker.YearString() },
-		"${gen day_of_week}":            func() string { return faker.DayOfWeek() },
-		"${gen day_of_month}":           func() string { return faker.DayOfMonth() },
-		"${gen timestamp}":              func() string { return faker.Timestamp() },
-		"${gen century}":                func() string { return faker.Century() },
-		"${gen timezone}":               func() string { return faker.Timezone() },
-		"${gen timeperiod}":             func() string { return faker.Timeperiod() },
-		"${gen email}":                  func() string { return faker.Email() },
-		"${gen mac_address}":            func() string { return faker.MacAddress() },
-		"${gen domain_name}":            func() string { return faker.DomainName() },
-		"${gen url}":                    func() string { return faker.URL() },
-		"${gen user_name}":              func() string { return faker.Username() },
-		"${gen ipv4}":                   func() string { return faker.IPv4() },
-		"${gen ipv6}":                   func() string { return faker.IPv6() },
-		"${gen password}":               func() string { return faker.Password() },
-		"${gen word}":                   func() string { return faker.Word() },
-		"${gen sentence}":               func() string { return faker.Sentence() },
-		"${gen paragraph}":              func() string { return faker.Paragraph() },
-		"${gen cc_type}":                func() string { return faker.CCType() },
-		"${gen cc_number}":              func() string { return faker.CCNumber() },
-		"${gen currency}":               func() string { return faker.Currency() },
-		"${gen amount_with_currency}":   func() string { return faker.AmountWithCurrency() },
-		"${gen title_male}":             func() string { return faker.TitleMale() },
-		"${gen title_female}":           func() string { return faker.TitleFemale() },
-		"${gen first_name}":             func() string { return faker.FirstName() },
-		"${gen first_name_male}":        func() string { return faker.FirstNameMale() },
-		"${gen first_name_female}":      func() string { return faker.FirstNameFemale() },
-		"${gen last_name}":              func() string { return faker.LastName() },
-		"${gen name}":                   func() string { return faker.Name() },
-		"${gen phone_number}":           func() string { return faker.Phonenumber() },
-		"${gen toll_free_phone_number}": func() string { return faker.TollFreePhoneNumber() },
-		"${gen e164_phone_number}":      func() string { return faker.E164PhoneNumber() },
-		"${gen uuid_hyphen}":            func() string { return faker.UUIDHyphenated() },
-		"${gen uuid}":                   func() string { return faker.UUIDDigit() },
-		"${gen bool}":                   func() string { return strconv.FormatBool(rand.Int()%2 == 0) },
-		"${gen int8}":                   func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt8), 10) },
-		"${gen int16}":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt16), 10) },
-		"${gen int32}":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt32), 10) },
-		"${gen int64}":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt64), 10) },
-	}
+	"gopkg.in/yaml.v2"
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
-	configPath := flag.String("c", "", "absolute or relative path to config file")
-	outputDir := flag.String("o", ".", "absolute or relative path of output directory")
+	configPath := flag.String("c", "", "the absolute or relative path to the config file")
+	outputDir := flag.String("o", ".", "the absolute or relative path to the output dir")
 	flag.Parse()
 
 	if *configPath == "" {
@@ -89,38 +29,17 @@ func main() {
 
 	c, err := loadConfig(*configPath)
 	if err != nil {
-		log.Fatalf("error loading config file: %v", err)
+		log.Fatalf("error loading config: %v", err)
 	}
 
-	csvFiles, err := generateTables(c)
+	files, err := generateTables(c)
 	if err != nil {
-		log.Fatalf("error generating data for tables: %v", err)
+		log.Fatalf("error generating tables: %v", err)
 	}
 
-	if err = writeFiles(*outputDir, csvFiles); err != nil {
+	if err := writeFiles(*outputDir, files); err != nil {
 		log.Fatalf("error writing csv files: %v", err)
 	}
-}
-
-type config []table
-
-type table struct {
-	Name    string   `yaml:"table"`
-	Count   int      `yaml:"count"`
-	Columns []column `yaml:"columns"`
-	Foreach string   `yaml:"foreach"`
-}
-
-type column struct {
-	Name           string `yaml:"name"`
-	Value          string `yaml:"value"`
-	NullPercentage int    `yaml:"null_percentage"`
-}
-
-type csvFile struct {
-	name   string
-	header []string
-	lines  [][]string
 }
 
 func loadConfig(filename string) (config, error) {
@@ -141,96 +60,159 @@ func loadConfig(filename string) (config, error) {
 func generateTables(c config) (map[string]csvFile, error) {
 	files := make(map[string]csvFile)
 	for _, table := range c {
-		file, err := generateTable(table, files)
-		if err != nil {
+		if err := generateTable(table, files); err != nil {
 			return nil, fmt.Errorf("generating csv file for %q: %w", table.Name, err)
 		}
-
-		files[table.Name] = file
 	}
 
 	return files, nil
 }
 
-func generateTable(t table, files map[string]csvFile) (csvFile, error) {
-	if t.Foreach != "" {
-		return generateForeachTable(t, files)
+func generateTable(t table, files map[string]csvFile) error {
+	// Create the Cartesian product of any each types first.
+	if err := generateEachColumns(t, files); err != nil {
+		return fmt.Errorf("generating each columns: %w", err)
 	}
 
-	var lines [][]string
+	for _, col := range t.Columns {
+		switch col.Type {
+		case "ref":
+			if err := generateRefColumn(t, col, files); err != nil {
+				return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, col.Name, err)
+			}
+
+		case "gen":
+			if err := generateGenColumn(t, col, files); err != nil {
+				return fmt.Errorf("parsing gen process for %s.%s: %w", t.Name, col.Name, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func generateEachColumns(t table, files map[string]csvFile) error {
+	cols := lo.Filter(t.Columns, func(c column, _ int) bool {
+		return c.Type == "each"
+	})
+
+	if len(cols) == 0 {
+		return nil
+	}
+
+	var preCartesian [][]string
+	for _, col := range cols {
+		var ptc processorTableColumn
+		if err := col.Processor.unmarshal(&ptc); err != nil {
+			return fmt.Errorf("parsing each process for %s.%s: %w", t.Name, col.Name, err)
+		}
+
+		srcTable := files[ptc.Table]
+		srcColumn := ptc.Column
+		srcColumnIndex := lo.IndexOf(srcTable.header, srcColumn)
+
+		preCartesian = append(preCartesian, srcTable.lines[srcColumnIndex])
+	}
+
+	// Compute Cartesian product of all columns.
+	cartesianColumns := transpose(cartesianProduct(preCartesian...))
+
+	// Add the header
+	if _, ok := files[t.Name]; !ok {
+		files[t.Name] = csvFile{
+			name: t.Name,
+		}
+	}
+
+	for i, col := range cartesianColumns {
+		foundTable := files[t.Name]
+		foundTable.header = append(foundTable.header, cols[i].Name)
+		foundTable.lines = append(foundTable.lines, col)
+		files[t.Name] = foundTable
+	}
+
+	return nil
+}
+
+func generateRefColumn(t table, c column, files map[string]csvFile) error {
+	var ptc processorTableColumn
+	if err := c.Processor.unmarshal(&ptc); err != nil {
+		return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, c.Name, err)
+	}
+
+	if t.Count == 0 {
+		t.Count = len(lo.MaxBy(files[t.Name].lines, func(a, b []string) bool {
+			return len(a) > len(b)
+		}))
+	}
+
+	table, ok := files[ptc.Table]
+	if !ok {
+		return fmt.Errorf("missing table %q for ref lookup", ptc.Table)
+	}
+
+	colIndex := lo.IndexOf(table.header, ptc.Column)
+	column := table.lines[colIndex]
+
+	var lines []string
 	for i := 0; i < t.Count; i++ {
-		lines = append(lines, generateRow(t.Columns, files))
+		lines = append(lines, column[rand.Intn(len(column))])
 	}
 
-	file := csvFile{
-		name: t.Name,
-		header: lo.Map(t.Columns, func(c column, i int) string {
-			return c.Name
-		}),
-		lines: lines,
+	// Add the header
+	if _, ok := files[t.Name]; !ok {
+		files[t.Name] = csvFile{
+			name: t.Name,
+		}
 	}
-	return file, nil
+
+	foundTable := files[t.Name]
+	foundTable.header = append(foundTable.header, c.Name)
+	foundTable.lines = append(foundTable.lines, lines)
+	files[t.Name] = foundTable
+
+	return nil
 }
 
-func generateForeachTable(t table, files map[string]csvFile) (csvFile, error) {
-	var lines [][]string
+func generateGenColumn(t table, c column, files map[string]csvFile) error {
+	var pg processorGenerator
+	if err := c.Processor.unmarshal(&pg); err != nil {
+		return fmt.Errorf("parsing each process for %s: %w", c.Name, err)
+	}
 
+	if t.Count == 0 {
+		t.Count = len(lo.MaxBy(files[t.Name].lines, func(a, b []string) bool {
+			return len(a) > len(b)
+		}))
+	}
+
+	var line []string
 	for i := 0; i < t.Count; i++ {
-		ref, ok := files[t.Foreach]
-		if !ok {
-			return csvFile{}, fmt.Errorf("no reference table called %q, make sure you've generated it first", t.Foreach)
-		}
+		line = append(line, replacePlaceholders(pg))
+	}
 
-		for _, line := range ref.lines {
-			lines = append(lines, generateRefRow(t.Columns, ref.header, line))
+	// Add the header
+	if _, ok := files[t.Name]; !ok {
+		files[t.Name] = csvFile{
+			name: t.Name,
 		}
 	}
 
-	file := csvFile{
-		name: t.Name,
-		header: lo.Map(t.Columns, func(c column, i int) string {
-			return c.Name
-		}),
-		lines: lines,
-	}
-	return file, nil
+	foundTable := files[t.Name]
+	foundTable.header = append(foundTable.header, c.Name)
+	foundTable.lines = append(foundTable.lines, line)
+	files[t.Name] = foundTable
+
+	return nil
 }
 
-func generateRefRow(columns []column, refHeader []string, refLine []string) []string {
-	var line []string
-
-	for _, c := range columns {
-		if value, ok := getRefColumnValue(c.Value, refHeader, refLine); ok {
-			line = append(line, value)
-		} else {
-			line = append(line, replacePlaceholders(c))
-		}
-	}
-
-	return line
-}
-
-func generateRow(columns []column, files map[string]csvFile) []string {
-	var line []string
-
-	for _, c := range columns {
-		if value, ok := getRefTableColumnValue(c.Value, files); ok {
-			line = append(line, value)
-		} else {
-			line = append(line, replacePlaceholders(c))
-		}
-	}
-
-	return line
-}
-
-func replacePlaceholders(c column) string {
+func replacePlaceholders(pg processorGenerator) string {
 	r := rand.Intn(100)
-	if r < c.NullPercentage {
+	if r < pg.NullPercentage {
 		return ""
 	}
 
-	s := c.Value
+	s := pg.Value
 	for k, v := range replacements {
 		if strings.Contains(s, k) {
 			s = strings.ReplaceAll(s, k, v())
@@ -241,6 +223,10 @@ func replacePlaceholders(c column) string {
 }
 
 func writeFiles(outputDir string, cfs map[string]csvFile) error {
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		return fmt.Errorf("creating output directory: %w", err)
+	}
+
 	for name, file := range cfs {
 		if err := writeFile(outputDir, name, file); err != nil {
 			return fmt.Errorf("writing file %q: %w", file.name, err)
@@ -251,10 +237,6 @@ func writeFiles(outputDir string, cfs map[string]csvFile) error {
 }
 
 func writeFile(outputDir, name string, cf csvFile) error {
-	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
-		return fmt.Errorf("creating output directory: %w", err)
-	}
-
 	fullPath := path.Join(outputDir, fmt.Sprintf("%s.csv", name))
 	file, err := os.Create(fullPath)
 	if err != nil {
@@ -267,50 +249,135 @@ func writeFile(outputDir, name string, cf csvFile) error {
 		return fmt.Errorf("writing csv header for %q: %w", name, err)
 	}
 
-	if err = writer.WriteAll(cf.lines); err != nil {
+	lines := transpose(cf.lines)
+	if err = writer.WriteAll(lines); err != nil {
 		return fmt.Errorf("writing csv lines for %q: %w", name, err)
 	}
 
 	writer.Flush()
-
 	return nil
 }
 
-func getRefProp(refHeader []string, refLine []string, prop string) string {
-	index := lo.IndexOf(refHeader, prop)
-
-	return refLine[index]
+func cartesianProduct(a ...[]string) (c [][]string) {
+	if len(a) == 0 {
+		return [][]string{nil}
+	}
+	last := len(a) - 1
+	l := cartesianProduct(a[:last]...)
+	for _, e := range a[last] {
+		for _, p := range l {
+			c = append(c, append(p, e))
+		}
+	}
+	return
 }
 
-func getRefTableColumnValue(s string, files map[string]csvFile) (string, bool) {
-	matches := refExtractor.FindStringSubmatch(s)
-	if len(matches) == 0 {
-		return "", false
+func transpose(m [][]string) [][]string {
+	r := make([][]string, len(m[0]))
+	for x := range r {
+		r[x] = make([]string, len(m))
 	}
-
-	// TODO: This should be an error.
-	table, ok := files[matches[1]]
-	if !ok {
-		return "", false
+	for y, s := range m {
+		for x, e := range s {
+			r[x][y] = e
+		}
 	}
-
-	// Determine the property's index in the header.
-	index := lo.IndexOf(table.header, matches[2])
-
-	// Pick a random line.
-	line := table.lines[rand.Intn(len(table.lines))]
-
-	return line[index], true
+	return r
 }
 
-func getRefColumnValue(s string, refHeader, refLine []string) (string, bool) {
-	matches := refExtractor.FindStringSubmatch(s)
-	if len(matches) == 0 {
-		return "", false
-	}
+type config []table
 
-	// Determine the property's index in the header.
-	index := lo.IndexOf(refHeader, matches[2])
-
-	return refLine[index], true
+type table struct {
+	Name    string   `yaml:"table"`
+	Count   int      `yaml:"count"`
+	Columns []column `yaml:"columns"`
 }
+
+type column struct {
+	Name      string     `yaml:"name"`
+	Type      string     `yaml:"type"`
+	Processor rawMessage `yaml:"processor"`
+}
+
+type processorTableColumn struct {
+	Table  string `yaml:"table"`
+	Column string `yaml:"column"`
+}
+
+type processorGenerator struct {
+	Value          string `yaml:"value"`
+	NullPercentage int    `yaml:"null_percentage"`
+}
+
+type rawMessage struct {
+	unmarshal func(interface{}) error
+}
+
+type csvFile struct {
+	name   string
+	header []string
+	lines  [][]string
+}
+
+func (msg *rawMessage) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	msg.unmarshal = unmarshal
+	return nil
+}
+
+func (msg *rawMessage) Unmarshal(v any) error {
+	return msg.unmarshal(v)
+}
+
+var (
+	replacements = map[string]func() string{
+		"latitude":               func() string { return strconv.FormatFloat(faker.Latitude(), 'f', -1, 64) },
+		"longitude":              func() string { return strconv.FormatFloat(faker.Longitude(), 'f', -1, 64) },
+		"address":                func() string { return faker.GetRealAddress().Address },
+		"city":                   func() string { return faker.GetRealAddress().City },
+		"state":                  func() string { return faker.GetRealAddress().State },
+		"postcode":               func() string { return faker.GetRealAddress().PostalCode },
+		"unix_time":              func() string { return strconv.FormatInt(faker.UnixTime(), 10) },
+		"date":                   func() string { return faker.Date() },
+		"time":                   func() string { return faker.TimeString() },
+		"month_name":             func() string { return faker.MonthName() },
+		"year":                   func() string { return faker.YearString() },
+		"day_of_week":            func() string { return faker.DayOfWeek() },
+		"day_of_month":           func() string { return faker.DayOfMonth() },
+		"timestamp":              func() string { return faker.Timestamp() },
+		"century":                func() string { return faker.Century() },
+		"timezone":               func() string { return faker.Timezone() },
+		"timeperiod":             func() string { return faker.Timeperiod() },
+		"email":                  func() string { return faker.Email() },
+		"mac_address":            func() string { return faker.MacAddress() },
+		"domain_name":            func() string { return faker.DomainName() },
+		"url":                    func() string { return faker.URL() },
+		"user_name":              func() string { return faker.Username() },
+		"ipv4":                   func() string { return faker.IPv4() },
+		"ipv6":                   func() string { return faker.IPv6() },
+		"password":               func() string { return faker.Password() },
+		"word":                   func() string { return faker.Word() },
+		"sentence":               func() string { return faker.Sentence() },
+		"paragraph":              func() string { return faker.Paragraph() },
+		"cc_type":                func() string { return faker.CCType() },
+		"cc_number":              func() string { return faker.CCNumber() },
+		"currency":               func() string { return faker.Currency() },
+		"amount_with_currency":   func() string { return faker.AmountWithCurrency() },
+		"title_male":             func() string { return faker.TitleMale() },
+		"title_female":           func() string { return faker.TitleFemale() },
+		"first_name":             func() string { return faker.FirstName() },
+		"first_name_male":        func() string { return faker.FirstNameMale() },
+		"first_name_female":      func() string { return faker.FirstNameFemale() },
+		"last_name":              func() string { return faker.LastName() },
+		"name":                   func() string { return faker.Name() },
+		"phone_number":           func() string { return faker.Phonenumber() },
+		"toll_free_phone_number": func() string { return faker.TollFreePhoneNumber() },
+		"e164_phone_number":      func() string { return faker.E164PhoneNumber() },
+		"uuid_hyphen":            func() string { return faker.UUIDHyphenated() },
+		"uuid":                   func() string { return faker.UUIDDigit() },
+		"bool":                   func() string { return strconv.FormatBool(rand.Int()%2 == 0) },
+		"int8":                   func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt8), 10) },
+		"int16":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt16), 10) },
+		"int32":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt32), 10) },
+		"int64":                  func() string { return strconv.FormatInt(rand.Int63n(math.MaxInt64), 10) },
+	}
+)
