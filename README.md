@@ -321,7 +321,11 @@ $ VERSION=0.1.0 make release
 
 ### Todos
 
-Add progress bar
+* Add a `inc` generator that provides incrementing numbers
+
+* Add a `format` property to `processorGenerator` so that values can be formatted once generated
+
+* Add progress bar
 ``` go
 count := 10000
 
