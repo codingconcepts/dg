@@ -23,7 +23,7 @@ There are three ways to generate data for columns:
 - name: id
   type: gen
   processor:
-    value: uuid
+    value: ${uuid_hyphen}
 ```
 
 This configuration will generate a random UUID for the id column. `value` points to a function in the code that generates the data. A list of available functions can be found [here](https://github.com/codingconcepts/dg#functions).
@@ -53,7 +53,7 @@ Here's an example of one `each` column:
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 # person
 #
@@ -91,7 +91,7 @@ Here's an example of two `each` columns:
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 # person
 #
@@ -106,7 +106,7 @@ Here's an example of two `each` columns:
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 # event
 #
@@ -164,7 +164,7 @@ Create a config file. In the following example, we're creating 10,000 people, 50
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 - table: event
   count: 50
@@ -172,7 +172,7 @@ Create a config file. In the following example, we're creating 10,000 people, 50
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 - table: person_type
   count: 5
@@ -180,18 +180,24 @@ Create a config file. In the following example, we're creating 10,000 people, 50
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
     - name: name
       type: gen
       processor:
-        value: int8
+        value: ${int16}
+        format: "%05d" # Left pad the result with zero
+    - name: last_visited
+      type: gen
+      processor:
+        value: ${timestamp}
+        format: Jan 2, 2006 at 3:04pm
 
 - table: person_event
   columns:
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
     - name: person_type
       type: ref
       processor:
@@ -322,8 +328,6 @@ $ VERSION=0.1.0 make release
 ### Todos
 
 * Add a `inc` generator that provides incrementing numbers
-
-* Add a `format` property to `processorGenerator` so that values can be formatted once generated
 
 * Add progress bar
 ``` go

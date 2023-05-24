@@ -4,7 +4,7 @@
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 - table: event
   count: 5
@@ -12,7 +12,7 @@
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
 
 - table: person_type
   count: 5
@@ -20,18 +20,19 @@
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
     - name: name
       type: gen
       processor:
-        value: int8
+        value: ${int16}
+        format: "%05d"
 
 - table: person_event
   columns:
     - name: id
       type: gen
       processor:
-        value: uuid
+        value: ${uuid_hyphen}
     - name: person_type
       type: ref
       processor:

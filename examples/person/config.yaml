@@ -1,21 +1,16 @@
 - table: person
   count: 10
   columns:
-    - name: uuid
-      value: ${gen uuid_hyphen}
-    - name: string
-      value: ${gen first_name} ${gen last_name}
-      null_percentage: 10
-    - name: date
-      value: ${gen date}
-      null_percentage: 25
-    - name: bool
-      value: ${gen bool}
-    - name: int8
-      value: ${gen int8}
-    - name: int16
-      value: ${gen int16}
-    - name: int32
-      value: ${gen int32}
-    - name: int64
-      value: ${gen int64}
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid_hyphen}
+    - name: full_name
+      type: gen
+      processor:
+        value: ${first_name} ${last_name}
+    - name: date_of_birth
+      type: gen
+      processor:
+        value: ${timestamp}
+        format: Jan 2, 2006 at 3:04pm
