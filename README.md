@@ -167,7 +167,7 @@ Create a config file. In the following example, we're creating 10,000 people, 50
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
 
 - table: event
   count: 50
@@ -175,7 +175,7 @@ Create a config file. In the following example, we're creating 10,000 people, 50
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
 
 - table: person_type
   count: 5
@@ -183,24 +183,19 @@ Create a config file. In the following example, we're creating 10,000 people, 50
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
     - name: name
       type: gen
       processor:
-        value: ${int16}
-        format: "%05d" # Left pad the result with zero
-    - name: last_visited
-      type: gen
-      processor:
-        value: ${timestamp}
-        format: Jan 2, 2006 at 3:04pm
+        value: ${uint16}
+        format: "%05d"
 
 - table: person_event
   columns:
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
     - name: person_type
       type: ref
       processor:
@@ -215,7 +210,7 @@ Create a config file. In the following example, we're creating 10,000 people, 50
       type: each
       processor:
         table: event
-        column: id  
+        column: id
 ```
 
 Run the application:

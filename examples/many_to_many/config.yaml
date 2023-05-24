@@ -1,5 +1,5 @@
 - table: person
-  count: 10
+  count: 10000
   columns:
     - name: id
       type: gen
@@ -7,7 +7,7 @@
         value: ${uuid}
 
 - table: event
-  count: 5
+  count: 50
   columns:
     - name: id
       type: gen
