@@ -326,6 +326,8 @@ $ VERSION=0.1.0 make release
 
 ### Todos
 
+* Refactor into separate files
+
 * Add a `set` generator that takes a set of options and returns one of them (possibly with a weight)
 
 * Add a `inc` generator that provides incrementing numbers
