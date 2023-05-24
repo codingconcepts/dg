@@ -29,9 +29,6 @@ func main() {
 		return
 	}
 
-	*configPath = "./examples/person/config.yaml"
-	*outputDir = "./csvs/person"
-
 	if *configPath == "" {
 		flag.Usage()
 		os.Exit(2)
