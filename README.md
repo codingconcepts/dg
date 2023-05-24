@@ -20,13 +20,16 @@ There are three ways to generate data for columns:
 `gen`  - Generate a random value for the column. Here's an example:
 
 ``` yaml
-- name: id
+- name: sku
   type: gen
   processor:
-    value: ${uuid_hyphen}
+    value: SKU${uint16}
+    format: "%05d"
 ```
 
-This configuration will generate a random UUID for the id column. `value` points to a function in the code that generates the data. A list of available functions can be found [here](https://github.com/codingconcepts/dg#functions).
+This configuration will generate a random left-padded `uint16` with a prefix of "SKU" for a column called "sku". `value` contains zero or more function placeholders that can be used to generate data. A list of available functions can be found [here](https://github.com/codingconcepts/dg#functions).
+
+
 
 **`ref`**  - References a value from a previously generated table. Here's an example:
 
