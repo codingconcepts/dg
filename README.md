@@ -1,6 +1,16 @@
 # dg
 A fast data generator that produces CSV files from generated relational data
 
+### Installation
+
+Find the release that matches your architecture on the [releases](https://github.com/codingconcepts/dg/releases) page.
+
+Download the tar and extract the executable:
+
+```
+$ tar -xvf dg_0.1.0_macOS.tar.gz
+```
+
 ### Concepts
 
 dg takes its configuration from a config file that is parsed in the form of an array of objects. Each object represents a CSV file to be generated for a named table and contains a collection of columns to generate data for.
@@ -302,6 +312,12 @@ WITH skip='1', nullif = '', allow_quoted_null;
 | uuid_hyphen | 05acae1b-3db8-40b4-bd70-287b55d5e026 |
 | word | quo |
 | year | 2018 |
+
+### Building releases locally
+
+```
+$ VERSION=0.1.0 make release
+```
 
 ### Todos
 

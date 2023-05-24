@@ -20,7 +20,14 @@ import (
 func main() {
 	configPath := flag.String("c", "", "the absolute or relative path to the config file")
 	outputDir := flag.String("o", ".", "the absolute or relative path to the output dir")
+	versionFlag := flag.Bool("version", false, "display the current version number")
+
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Println(version)
+		return
+	}
 
 	if *configPath == "" {
 		flag.Usage()
@@ -329,6 +336,8 @@ func (msg *rawMessage) Unmarshal(v any) error {
 }
 
 var (
+	version string
+
 	replacements = map[string]func() string{
 		"latitude":               func() string { return strconv.FormatFloat(faker.Latitude(), 'f', -1, 64) },
 		"longitude":              func() string { return strconv.FormatFloat(faker.Longitude(), 'f', -1, 64) },
