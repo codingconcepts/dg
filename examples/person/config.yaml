@@ -1,199 +1,30 @@
 - table: person
   count: 10
   columns:
-    - name: address
+    - name: full_name
       type: gen
       processor:
-        value: ${address}
-    - name: amount_with_currency
-      type: gen
-      processor:
-        value: ${amount_with_currency}
-    - name: bool
-      type: gen
-      processor:
-        value: ${bool}
-    - name: cc_number
-      type: gen
-      processor:
-        value: ${cc_number}
-    - name: cc_type
-      type: gen
-      processor:
-        value: ${cc_type}
-    - name: century
-      type: gen
-      processor:
-        value: ${century}
-    - name: city
-      type: gen
-      processor:
-        value: ${city}
-    - name: currency
-      type: gen
-      processor:
-        value: ${currency}
-    - name: date
+        value: ${name_prefix} ${first_name} ${last_name}
+    - name: date_of_birth
       type: gen
       processor:
         value: ${date}
-    - name: day_of_month
+        format: 2006-01-02
+    - name: username
       type: gen
       processor:
-        value: ${day_of_month}
-    - name: day_of_week
-      type: gen
-      processor:
-        value: ${day_of_week}
-    - name: domain_name
-      type: gen
-      processor:
-        value: ${domain_name}
-    - name: e164_phone_number
-      type: gen
-      processor:
-        value: ${e164_phone_number}
-    - name: email
-      type: gen
-      processor:
-        value: ${email}
-    - name: first_name_female
-      type: gen
-      processor:
-        value: ${first_name_female}
-    - name: first_name_male
-      type: gen
-      processor:
-        value: ${first_name_male}
-    - name: first_name
-      type: gen
-      processor:
-        value: ${first_name}
-    - name: int16
-      type: gen
-      processor:
-        value: ${int16}
-    - name: int32
-      type: gen
-      processor:
-        value: ${int32}
-    - name: int64
-      type: gen
-      processor:
-        value: ${int64}
-    - name: int8
-      type: gen
-      processor:
-        value: ${int8}
-    - name: ipv4
-      type: gen
-      processor:
-        value: ${ipv4}
-    - name: ipv6
-      type: gen
-      processor:
-        value: ${ipv6}
-    - name: last_name
-      type: gen
-      processor:
-        value: ${last_name}
-    - name: latitude
-      type: gen
-      processor:
-        value: ${latitude}
-    - name: longitude
-      type: gen
-      processor:
-        value: ${longitude}
-    - name: mac_address
-      type: gen
-      processor:
-        value: ${mac_address}
-    - name: month_name
-      type: gen
-      processor:
-        value: ${month_name}
-    - name: name
-      type: gen
-      processor:
-        value: ${name}
-    - name: paragraph
-      type: gen
-      processor:
-        value: ${paragraph}
+        value: ${username}
     - name: password
       type: gen
       processor:
         value: ${password}
-    - name: phone_number
+    - name: last_updated
       type: gen
       processor:
-        value: ${phone_number}
-    - name: postcode
+        value: ${date}
+        format: 2006-01-02T15:04:05
+    - name: sku
       type: gen
       processor:
-        value: ${postcode}
-    - name: sentence
-      type: gen
-      processor:
-        value: ${sentence}
-    - name: state
-      type: gen
-      processor:
-        value: ${state}
-    - name: time
-      type: gen
-      processor:
-        value: ${time}
-    - name: timeperiod
-      type: gen
-      processor:
-        value: ${timeperiod}
-    - name: timestamp
-      type: gen
-      processor:
-        value: ${timestamp}
-    - name: timezone
-      type: gen
-      processor:
-        value: ${timezone}
-    - name: title_female
-      type: gen
-      processor:
-        value: ${title_female}
-    - name: title_male
-      type: gen
-      processor:
-        value: ${title_male}
-    - name: toll_free_phone_number
-      type: gen
-      processor:
-        value: ${toll_free_phone_number}
-    - name: unix_time
-      type: gen
-      processor:
-        value: ${unix_time}
-    - name: url
-      type: gen
-      processor:
-        value: ${url}
-    - name: user_name
-      type: gen
-      processor:
-        value: ${user_name}
-    - name: uuid_hyphen
-      type: gen
-      processor:
-        value: ${uuid_hyphen}
-    - name: uuid
-      type: gen
-      processor:
-        value: ${uuid}
-    - name: word
-      type: gen
-      processor:
-        value: ${word}
-    - name: year
-      type: gen
-      processor:
-        value: ${year}
+        value: SKU${uint16}
+        format: "%05d"

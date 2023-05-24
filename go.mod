@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.21.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
