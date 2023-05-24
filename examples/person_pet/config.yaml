@@ -2,27 +2,44 @@
   count: 10000
   columns:
     - name: id
-      value: ${gen uuid}
+      type: gen
+      processor:
+        value: ${uuid}
     - name: full_name
-      value: ${gen first_name} ${gen last_name}
+      type: gen
+      processor:
+        value: ${first_name} ${last_name}
     - name: dob
-      value: ${gen date}
+      type: gen
+      processor:
+        value: ${date}
+        format: 2006-01-02
 
 - table: account
-  foreach: person
-  count: 1
   columns:
     - name: person_id
-      value: ${ref person id}
+      type: each
+      processor:
+        table: person
+        column: id
     - name: email
-      value: ${gen email}
+      type: gen
+      processor:
+        value: ${email}
 
 - table: pet
   count: 1000
   columns:
     - name: id
-      value: ${gen uuid}
+      type: gen
+      processor:
+        value: ${uuid}
     - name: name
-      value: ${gen first_name}
-    - person_id:
-      value: ${ref person id}
+      type: gen
+      processor:
+        value: ${first_name}
+    - name: "person_id"
+      type: ref
+      processor:
+        table: person
+        column: id
