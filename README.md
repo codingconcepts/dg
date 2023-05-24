@@ -212,8 +212,7 @@ Create a config file. In the following example, we're creating 10,000 people, 50
       type: each
       processor:
         table: event
-        column: id
-    
+        column: id  
 ```
 
 Run the application:
