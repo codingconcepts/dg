@@ -1,3 +1,4 @@
+# Create data for a person table, with 10,000 rows.
 - table: person
   count: 10000
   columns:
@@ -6,6 +7,7 @@
       processor:
         value: ${uuid}
 
+# Create data for an event table, with 50 rows.
 - table: event
   count: 50
   columns:
@@ -14,6 +16,7 @@
       processor:
         value: ${uuid}
 
+# Create data for a person_type table, with 5 rows.
 - table: person_type
   count: 5
   columns:
@@ -27,6 +30,8 @@
         value: ${uint16}
         format: "%05d"
 
+# Create data for a person_event many-to-many resolver table between
+# the person and event tables.
 - table: person_event
   columns:
     - name: id

@@ -1,3 +1,4 @@
+# Generate data for a person table, showing off a couple of column generators.
 - table: person
   count: 10
   columns:
