@@ -25,7 +25,7 @@ dg takes its configuration from a config file that is parsed in the form of an a
 
 There are three ways to generate data for columns:
 
-`gen`  - Generate a random value for the column. Here's an example:
+**`gen`** - Generate a random value for the column. Here's an example:
 
 ``` yaml
 - name: sku
@@ -37,9 +37,18 @@ There are three ways to generate data for columns:
 
 This configuration will generate a random left-padded `uint16` with a prefix of "SKU" for a column called "sku". `value` contains zero or more function placeholders that can be used to generate data. A list of available functions can be found [here](https://github.com/codingconcepts/dg#functions).
 
+**`set`** - Select a value from a given set. Here's an example:
 
+``` yaml
+- name: user_type
+  type: set
+  processor:
+    values: [admin, regular, read-only]
+```
 
-**`ref`**  - References a value from a previously generated table. Here's an example:
+This configuration will select between the values "admin", "regular", and "read-only"; each with an equal probability of being selected.
+
+**`ref`** - References a value from a previously generated table. Here's an example:
 
 ``` yaml
 - name: ptype
@@ -462,9 +471,9 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 
 * Refactor into separate files
 
-* Add a `set` generator that takes a set of options and returns one of them (possibly with a weight)
-
 * Add a `inc` generator that provides incrementing numbers
+
+* Implement a faster random
 
 * Add progress bar
 ``` go

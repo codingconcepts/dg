@@ -84,6 +84,11 @@ func generateTable(t model.Table, files map[string]model.CSVFile) error {
 			if err := generator.GenerateGenColumn(t, col, files); err != nil {
 				return fmt.Errorf("parsing gen process for %s.%s: %w", t.Name, col.Name, err)
 			}
+
+		case "set":
+			if err := generator.GenerateSetColumn(t, col, files); err != nil {
+				return fmt.Errorf("parsing set process for %s.%s: %w", t.Name, col.Name, err)
+			}
 		}
 	}
 

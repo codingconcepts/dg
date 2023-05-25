@@ -29,3 +29,7 @@
       processor:
         value: SKU${uint16}
         format: "%05d"
+    - name: set
+      type: set
+      processor:
+        values: [admin, regular, read-only]

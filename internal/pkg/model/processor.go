@@ -12,3 +12,8 @@ type ProcessorGenerator struct {
 	NullPercentage int    `yaml:"null_percentage"`
 	Format         string `yaml:"format"`
 }
+
+// ProcessorSet provides additional context to a set column.
+type ProcessorSet struct {
+	Values []string `yaml:"values"`
+}
