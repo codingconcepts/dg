@@ -6,6 +6,7 @@ A fast data generator that produces CSV files from generated relational data
 1. [Concepts](#concepts)
 1. [Usage](#usage)
 1. [Functions](#functions)
+1. [Thanks](#thanks)
 1. [Todos](#todos)
 
 ### Installation
@@ -448,6 +449,14 @@ WITH skip='1', nullif = '', allow_quoted_null;
 ```
 $ VERSION=0.1.0 make release
 ```
+
+### Thanks
+
+Thanks to the maintainers of the following fantastic packages, who code this tools makes use of:
+
+* [samber/lo](https://github.com/samber/lo)
+* [brianvoe/gofakeit](https://github.com/brianvoe/gofakeit)
+* [go-yaml/yaml](https://github.com/go-yaml/yaml)
 
 ### Todos
 

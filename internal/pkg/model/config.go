@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // Config represents the entire contents of a config file.
