@@ -2,18 +2,12 @@ package generator
 
 import (
 	"dg/internal/pkg/model"
-	"fmt"
 
 	"github.com/samber/lo"
 )
 
 // GenerateIncColumn generates an incrementing number value for a column.
-func GenerateIncColumn(t model.Table, c model.Column, files map[string]model.CSVFile) error {
-	var pi model.ProcessorInc
-	if err := c.Processor.UnmarshalFunc(&pi); err != nil {
-		return fmt.Errorf("parsing each process for %s: %w", c.Name, err)
-	}
-
+func GenerateIncColumn(t model.Table, c model.Column, pi model.ProcessorInc, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 			return len(a) > len(b)

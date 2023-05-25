@@ -7,12 +7,7 @@ import (
 )
 
 // GenerateSetColumn selects between a set of values for a given table.
-func GenerateSetColumn(t model.Table, c model.Column, files map[string]model.CSVFile) error {
-	var ps model.ProcessorSet
-	if err := c.Processor.UnmarshalFunc(&ps); err != nil {
-		return fmt.Errorf("parsing set process for %s.%s: %w", t.Name, c.Name, err)
-	}
-
+func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, files map[string]model.CSVFile) error {
 	if len(ps.Values) == 0 {
 		return fmt.Errorf("no values provided for set generator")
 	}

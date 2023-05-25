@@ -76,22 +76,42 @@ func generateTable(t model.Table, files map[string]model.CSVFile) error {
 	for _, col := range t.Columns {
 		switch col.Type {
 		case "ref":
-			if err := generator.GenerateRefColumn(t, col, files); err != nil {
+			var p model.ProcessorTableColumn
+			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+				return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, col.Name, err)
+			}
+
+			if err := generator.GenerateRefColumn(t, col, p, files); err != nil {
 				return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
 		case "gen":
-			if err := generator.GenerateGenColumn(t, col, files); err != nil {
+			var p model.ProcessorGenerator
+			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+				return fmt.Errorf("parsing each process for %s: %w", col.Name, err)
+			}
+
+			if err := generator.GenerateGenColumn(t, col, p, files); err != nil {
 				return fmt.Errorf("parsing gen process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
 		case "set":
-			if err := generator.GenerateSetColumn(t, col, files); err != nil {
+			var p model.ProcessorSet
+			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+				return fmt.Errorf("parsing set process for %s.%s: %w", t.Name, col.Name, err)
+			}
+
+			if err := generator.GenerateSetColumn(t, col, p, files); err != nil {
 				return fmt.Errorf("parsing set process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
 		case "inc":
-			if err := generator.GenerateIncColumn(t, col, files); err != nil {
+			var p model.ProcessorInc
+			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+				return fmt.Errorf("parsing each process for %s: %w", col.Name, err)
+			}
+
+			if err := generator.GenerateIncColumn(t, col, p, files); err != nil {
 				return fmt.Errorf("parsing inc process for %s.%s: %w", t.Name, col.Name, err)
 			}
 		}

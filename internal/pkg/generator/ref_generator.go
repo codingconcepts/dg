@@ -10,12 +10,7 @@ import (
 
 // GenerateRefColumn tooks to previously generated table data and references that
 // when generating data for the given table.
-func GenerateRefColumn(t model.Table, c model.Column, files map[string]model.CSVFile) error {
-	var ptc model.ProcessorTableColumn
-	if err := c.Processor.UnmarshalFunc(&ptc); err != nil {
-		return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, c.Name, err)
-	}
-
+func GenerateRefColumn(t model.Table, c model.Column, ptc model.ProcessorTableColumn, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 			return len(a) > len(b)
