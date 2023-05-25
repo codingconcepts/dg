@@ -9,8 +9,11 @@ db:
 tables:
 	cockroach sql --insecure < examples/many_to_many/create.sql
 
-data:
+data_many_to_many:
 	go run dg.go -c ./examples/many_to_many/config.yaml -o ./csvs/many_to_many
+
+data_person:
+	go run dg.go -c ./examples/person/config.yaml -o ./csvs/person
 
 file_server:
 	python3 -m http.server 3000 -d csvs/many_to_many

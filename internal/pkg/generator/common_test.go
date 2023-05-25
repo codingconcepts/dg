@@ -3,6 +3,7 @@ package generator
 import (
 	"dg/internal/pkg/model"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -56,6 +57,42 @@ func TestAddToFile(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			addToFile(c.table, c.column, c.line, c.filesBefore)
 			assert.Equal(t, c.filesAfter, c.filesBefore)
+		})
+	}
+}
+
+func TestFormatValue(t *testing.T) {
+	cases := []struct {
+		name   string
+		format string
+		value  any
+		exp    string
+	}{
+		{
+			name:  "no format",
+			value: 1,
+			exp:   "1",
+		},
+		{
+			name:   "int format",
+			value:  1,
+			format: "PREFIX_%d_SUFFIX",
+			exp:    "PREFIX_1_SUFFIX",
+		},
+		{
+			name:   "time format",
+			value:  time.Date(2023, 1, 2, 3, 4, 5, 6, time.UTC),
+			format: "2006-01-02T15:04:05Z07:00",
+			exp:    "2023-01-02T03:04:05Z",
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			formatter := model.ProcessorGenerator{Format: c.format}
+			act := formatValue(formatter, c.value)
+
+			assert.Equal(t, c.exp, act)
 		})
 	}
 }

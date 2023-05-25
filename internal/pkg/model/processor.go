@@ -13,8 +13,22 @@ type ProcessorGenerator struct {
 	Format         string `yaml:"format"`
 }
 
+func (pg ProcessorGenerator) GetFormat() string {
+	return pg.Format
+}
+
 // ProcessorSet provides additional context to a set column.
 type ProcessorSet struct {
 	Values  []string `yaml:"values"`
 	Weights []int    `yaml:"weights"`
+}
+
+// ProcessorInc provides additional context to an inc column.
+type ProcessorInc struct {
+	Start  int    `yaml:"start"`
+	Format string `yaml:"format"`
+}
+
+func (pi ProcessorInc) GetFormat() string {
+	return pi.Format
 }

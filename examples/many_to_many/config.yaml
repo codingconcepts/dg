@@ -27,7 +27,7 @@
     - name: name
       type: gen
       processor:
-        value: ${uint16}
+        value: TYPE-${uint16}
         format: "%05d"
 
 # Create data for a person_event many-to-many resolver table between

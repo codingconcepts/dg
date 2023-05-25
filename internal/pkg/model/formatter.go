@@ -5,3 +5,9 @@ package model
 type Formatter interface {
 	Format(string) string
 }
+
+// FormatterProcessor can be called to get the Format string out of a struct
+// that implements this interface.
+type FormatterProcessor interface {
+	GetFormat() string
+}

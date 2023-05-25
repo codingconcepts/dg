@@ -2,6 +2,11 @@
 - table: person
   count: 100
   columns:
+    - name: id
+      type: inc
+      processor:
+        start: 1
+        format: "P%03d"
     - name: full_name
       type: gen
       processor:

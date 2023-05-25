@@ -27,18 +27,7 @@ func GenerateGenColumn(t model.Table, c model.Column, files map[string]model.CSV
 		line = append(line, replacePlaceholders(pg))
 	}
 
-	// Add the header
-	if _, ok := files[t.Name]; !ok {
-		files[t.Name] = model.CSVFile{
-			Name: t.Name,
-		}
-	}
-
-	foundTable := files[t.Name]
-	foundTable.Header = append(foundTable.Header, c.Name)
-	foundTable.Lines = append(foundTable.Lines, line)
-	files[t.Name] = foundTable
-
+	addToFile(t.Name, c.Name, line, files)
 	return nil
 }
 
@@ -51,19 +40,7 @@ func replacePlaceholders(pg model.ProcessorGenerator) string {
 	s := pg.Value
 	for k, v := range replacements {
 		if strings.Contains(s, k) {
-			value := v()
-			var valueStr string
-			if pg.Format != "" {
-				// Check if the value implements the formatter interface and use that first,
-				// otherwise, just perform a simple string format.
-				if f, ok := value.(model.Formatter); ok {
-					valueStr = f.Format(pg.Format)
-				} else {
-					valueStr = fmt.Sprintf(pg.Format, value)
-				}
-			} else {
-				valueStr = fmt.Sprintf("%v", value)
-			}
+			valueStr := formatValue(pg, v())
 			s = strings.ReplaceAll(s, k, valueStr)
 		}
 	}

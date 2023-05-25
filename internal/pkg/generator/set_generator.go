@@ -35,7 +35,6 @@ func GenerateSetColumn(t model.Table, c model.Column, files map[string]model.CSV
 	}
 
 	addToFile(t.Name, c.Name, line, files)
-
 	return nil
 }
 
