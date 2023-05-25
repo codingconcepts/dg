@@ -18,6 +18,9 @@ file_server:
 import:
 	cockroach sql --insecure < examples/many_to_many/insert.sql
 
+test:
+	go test ./... -v -cover
+
 release: validate_version
 	# linux
 	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\

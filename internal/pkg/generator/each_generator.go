@@ -36,17 +36,8 @@ func GenerateEachColumns(t model.Table, files map[string]model.CSVFile) error {
 	cartesianColumns := Transpose(CartesianProduct(preCartesian...))
 
 	// Add the header
-	if _, ok := files[t.Name]; !ok {
-		files[t.Name] = model.CSVFile{
-			Name: t.Name,
-		}
-	}
-
 	for i, col := range cartesianColumns {
-		foundTable := files[t.Name]
-		foundTable.Header = append(foundTable.Header, cols[i].Name)
-		foundTable.Lines = append(foundTable.Lines, col)
-		files[t.Name] = foundTable
+		addToFile(t.Name, cols[i].Name, col, files)
 	}
 
 	return nil

@@ -1,0 +1,28 @@
+- table: a
+  count: 2
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- table: b
+  count: 2
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- table: c
+  columns:
+    - name: a_id
+      type: each
+      processor:
+        table: a
+        column: id
+    - name: b_id
+      type: each
+      processor:
+        table: b
+        column: id

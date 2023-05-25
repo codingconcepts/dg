@@ -30,22 +30,12 @@ func GenerateRefColumn(t model.Table, c model.Column, files map[string]model.CSV
 	colIndex := lo.IndexOf(table.Header, ptc.Column)
 	column := table.Lines[colIndex]
 
-	var lines []string
+	var line []string
 	for i := 0; i < t.Count; i++ {
-		lines = append(lines, column[rand.Intn(len(column))])
+		line = append(line, column[rand.Intn(len(column))])
 	}
 
-	// Add the header
-	if _, ok := files[t.Name]; !ok {
-		files[t.Name] = model.CSVFile{
-			Name: t.Name,
-		}
-	}
-
-	foundTable := files[t.Name]
-	foundTable.Header = append(foundTable.Header, c.Name)
-	foundTable.Lines = append(foundTable.Lines, lines)
-	files[t.Name] = foundTable
+	addToFile(t.Name, c.Name, line, files)
 
 	return nil
 }
