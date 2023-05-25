@@ -48,3 +48,40 @@ func TestCartesianProduct(t *testing.T) {
 		})
 	}
 }
+
+func TestTranspose(t *testing.T) {
+	cases := []struct {
+		name   string
+		input  [][]string
+		output [][]string
+	}{
+		{
+			name: "single input",
+			input: [][]string{
+				{"a", "b", "c"},
+			},
+			output: [][]string{
+				{"a"}, {"b"}, {"c"},
+			},
+		},
+		{
+			name: "multiple input",
+			input: [][]string{
+				{"a", "b", "c"},
+				{"d", "e", "f"},
+			},
+			output: [][]string{
+				{"a", "d"},
+				{"b", "e"},
+				{"c", "f"},
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			actual := Transpose(c.input)
+			assert.Equal(t, c.output, actual)
+		})
+	}
+}
