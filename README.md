@@ -48,7 +48,7 @@ This configuration will generate a random left-padded `uint16` with a prefix of 
 
 This configuration will select between the values "admin", "regular", and "read-only"; each with an equal probability of being selected.
 
-Items in a set can also be given a weight, which will affect their likelihood of being used. Here's an example:
+Items in a set can also be given a weight, which will affect their likelihood of being selected. Here's an example:
 
 ``` yaml
 - name: favourite_animal
