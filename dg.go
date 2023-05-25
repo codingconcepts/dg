@@ -19,7 +19,6 @@ func main() {
 	configPath := flag.String("c", "", "the absolute or relative path to the config file")
 	outputDir := flag.String("o", ".", "the absolute or relative path to the output dir")
 	versionFlag := flag.Bool("version", false, "display the current version number")
-
 	flag.Parse()
 
 	if *versionFlag {
