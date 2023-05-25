@@ -452,7 +452,7 @@ $ VERSION=0.1.0 make release
 
 ### Thanks
 
-Thanks to the maintainers of the following fantastic packages, who code this tools makes use of:
+Thanks to the maintainers of the following fantastic packages, whose code this tools makes use of:
 
 * [samber/lo](https://github.com/samber/lo)
 * [brianvoe/gofakeit](https://github.com/brianvoe/gofakeit)
