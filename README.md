@@ -495,8 +495,6 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 
 * Refactor into separate files
 
-* Add a `inc` generator that provides incrementing numbers
-
 * Implement a faster random
 
 * Add progress bar
