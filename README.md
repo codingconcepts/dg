@@ -48,6 +48,18 @@ This configuration will generate a random left-padded `uint16` with a prefix of 
 
 This configuration will select between the values "admin", "regular", and "read-only"; each with an equal probability of being selected.
 
+Items in a set can also be given a weight, which will affect their likelihood of being used. Here's an example:
+
+``` yaml
+- name: favourite_animal
+  type: set
+  processor:
+    values: [rabbit, dog, cat]
+    weights: [10, 60, 30]
+```
+
+This configuration will select between the values "rabbit", "dog", and "cat"; each with different probabilities of being selected. Rabbits will be selected approximately 10% of the time, dogs 60%, and cats 30%. The total value doesn't have to be 100, however, you can use whichever numbers make most sense to you.
+
 **`ref`** - References a value from a previously generated table. Here's an example:
 
 ``` yaml

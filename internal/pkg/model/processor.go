@@ -15,5 +15,6 @@ type ProcessorGenerator struct {
 
 // ProcessorSet provides additional context to a set column.
 type ProcessorSet struct {
-	Values []string `yaml:"values"`
+	Values  []string `yaml:"values"`
+	Weights []int    `yaml:"weights"`
 }
