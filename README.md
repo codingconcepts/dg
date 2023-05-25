@@ -1,6 +1,13 @@
 # dg
 A fast data generator that produces CSV files from generated relational data
 
+## Table of Contents
+1. [Installation](#installation)
+1. [Concepts](#concepts)
+1. [Usage](#usage)
+1. [Functions](#functions)
+1. [Todos](#todos)
+
 ### Installation
 
 Find the release that matches your architecture on the [releases](https://github.com/codingconcepts/dg/releases) page.
