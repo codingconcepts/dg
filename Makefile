@@ -24,6 +24,11 @@ import:
 test:
 	go test ./... -v -cover
 
+cover:
+	go test -v -coverpkg=./... -coverprofile=profile.cov ./... -count=1
+	go tool cover -func profile.cov
+	go tool cover -html coverage.out
+
 release: validate_version
 	# linux
 	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\
