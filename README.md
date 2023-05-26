@@ -493,8 +493,6 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 
 ### Todos
 
-* Refactor into separate files
-
 * Implement a faster random
 
 * Add progress bar
