@@ -490,6 +490,7 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 * [samber/lo](https://github.com/samber/lo)
 * [brianvoe/gofakeit](https://github.com/brianvoe/gofakeit)
 * [go-yaml/yaml](https://github.com/go-yaml/yaml)
+* [stretchr/testify](github.com/stretchr/testify/assert)
 
 ### Todos
 
