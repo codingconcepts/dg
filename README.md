@@ -97,7 +97,7 @@ Here's an example of one `each` column:
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
 
 # person
 #
@@ -135,7 +135,7 @@ Here's an example of two `each` columns:
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
 
 # person
 #
@@ -150,7 +150,7 @@ Here's an example of two `each` columns:
     - name: id
       type: gen
       processor:
-        value: ${uuid_hyphen}
+        value: ${uuid}
 
 # event
 #
