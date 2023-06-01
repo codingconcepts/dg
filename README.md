@@ -20,6 +20,121 @@ Download the tar and extract the executable:
 $ tar -xvf dg_1.0.0-rc1_macOS.tar.gz
 ```
 
+### Usage
+
+```
+$ dg
+Usage dg:
+  -c string
+        the absolute or relative path to the config file
+  -o string
+        the absolute or relative path to the output dir (default ".")
+```
+
+Create a config file. In the following example, we're creating 10,000 people, 50 events, 5 person types, and then populating the many-to-many `person_event` resolver table:
+
+``` yaml
+- table: person
+  count: 10000
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- table: event
+  count: 50
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- table: person_type
+  count: 5
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+    - name: name
+      type: gen
+      processor:
+        value: ${uint16}
+        format: "%05d"
+
+- table: person_event
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+    - name: person_type
+      type: ref
+      processor:
+        table: person_type
+        column: id
+    - name: person_id
+      type: each
+      processor:
+        table: person
+        column: id
+    - name: event_id
+      type: each
+      processor:
+        table: event
+        column: id
+```
+
+Run the application:
+```
+$ dg -c your_config_file.yaml -o your_output_dir 
+```
+
+This will output:
+
+```
+your_output_dir
+├── event.csv
+├── person.csv
+├── person_event.csv
+└── person_type.csv
+```
+
+If you're following along locally, spin up a local web server using something like python's `http.server`:
+
+```
+$ python3 -m http.server 3000 -d your_output_dir
+```
+
+Then import the files as you would any other; here's an example insert into CockroachDB:
+
+``` sql
+IMPORT INTO "person" ("id")
+CSV DATA (
+    'http://localhost:3000/person.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "event" ("id")
+CSV DATA (
+    'http://localhost:3000/event.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "person_type" ("id", "name")
+CSV DATA (
+    'http://localhost:3000/person_type.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "person_event" ("person_id", "event_id", "id", "person_type")
+CSV DATA (
+    'http://localhost:3000/person_event.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+```
+
 ### Concepts
 
 dg takes its configuration from a config file that is parsed in the form of an array of objects. Each object represents a CSV file to be generated for a named table and contains a collection of columns to generate data for.
@@ -188,121 +303,6 @@ Here's an example of two `each` columns:
 ```
 
 Use the `each` type if you need to reference another table and need to generate a new row for *every* instance of the referenced column.
-
-### Usage
-
-```
-$ dg
-Usage dg:
-  -c string
-        the absolute or relative path to the config file
-  -o string
-        the absolute or relative path to the output dir (default ".")
-```
-
-Create a config file. In the following example, we're creating 10,000 people, 50 events, 5 person types, and then populating the many-to-many `person_event` resolver table:
-
-``` yaml
-- table: person
-  count: 10000
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
-
-- table: event
-  count: 50
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
-
-- table: person_type
-  count: 5
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
-    - name: name
-      type: gen
-      processor:
-        value: ${uint16}
-        format: "%05d"
-
-- table: person_event
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
-    - name: person_type
-      type: ref
-      processor:
-        table: person_type
-        column: id
-    - name: person_id
-      type: each
-      processor:
-        table: person
-        column: id
-    - name: event_id
-      type: each
-      processor:
-        table: event
-        column: id
-```
-
-Run the application:
-```
-$ dg -c your_config_file.yaml -o your_output_dir 
-```
-
-This will output:
-
-```
-your_output_dir
-├── event.csv
-├── person.csv
-├── person_event.csv
-└── person_type.csv
-```
-
-If you're following along locally, spin up a local web server using something like python's `http.server`:
-
-```
-$ python3 -m http.server 3000 -d your_output_dir
-```
-
-Then import the files as you would any other; here's an example insert into CockroachDB:
-
-``` sql
-IMPORT INTO "person" ("id")
-CSV DATA (
-    'http://localhost:3000/person.csv'
-)
-WITH skip='1', nullif = '', allow_quoted_null;
-
-IMPORT INTO "event" ("id")
-CSV DATA (
-    'http://localhost:3000/event.csv'
-)
-WITH skip='1', nullif = '', allow_quoted_null;
-
-IMPORT INTO "person_type" ("id", "name")
-CSV DATA (
-    'http://localhost:3000/person_type.csv'
-)
-WITH skip='1', nullif = '', allow_quoted_null;
-
-IMPORT INTO "person_event" ("person_id", "event_id", "id", "person_type")
-CSV DATA (
-    'http://localhost:3000/person_event.csv'
-)
-WITH skip='1', nullif = '', allow_quoted_null;
-```
 
 ### Functions
 
