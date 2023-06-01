@@ -31,7 +31,7 @@ Usage dg:
         the absolute or relative path to the output dir (default ".")
 ```
 
-Create a config file. In the following example, we're creating 10,000 people, 50 events, 5 person types, and then populating the many-to-many `person_event` resolver table:
+Create a config file. In the following example, we create 10,000 people, 50 events, 5 person types, and then populate the many-to-many `person_event` resolver table with 500,000 rows that represent the Cartesian product between the person and event tables:
 
 ``` yaml
 - table: person
