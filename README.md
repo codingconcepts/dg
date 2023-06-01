@@ -14,7 +14,7 @@ A fast data generator that produces CSV files from generated relational data
 
 Find the release that matches your architecture on the [releases](https://github.com/codingconcepts/dg/releases) page.
 
-Download the tar and extract the executable:
+Download the tar, extract the executable, and move it into your PATH:
 
 ```
 $ tar -xvf dg_1.0.0-rc1_macOS.tar.gz
