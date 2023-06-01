@@ -37,6 +37,7 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 - table: person
   count: 10000
   columns:
+    # Generate a random UUID for each person
     - name: id
       type: gen
       processor:
@@ -45,6 +46,7 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 - table: event
   count: 50
   columns:
+    # Generate a random UUID for each event
     - name: id
       type: gen
       processor:
@@ -53,10 +55,12 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 - table: person_type
   count: 5
   columns:
+    # Generate a random UUID for each person_type
     - name: id
       type: gen
       processor:
         value: ${uuid}
+    # Generate a random 16 bit number and left-pad it to 5 digits
     - name: name
       type: gen
       processor:
@@ -65,20 +69,24 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 
 - table: person_event
   columns:
+    # Generate a random UUID for each person_event
     - name: id
       type: gen
       processor:
         value: ${uuid}
+    # Select a random id from the person_type table
     - name: person_type
       type: ref
       processor:
         table: person_type
         column: id
+    # Generate a person_id column for each id in the person table
     - name: person_id
       type: each
       processor:
         table: person
         column: id
+    # Generate an event_id column for each id in the event table
     - name: event_id
       type: each
       processor:
