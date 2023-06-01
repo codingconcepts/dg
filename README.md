@@ -1,4 +1,5 @@
-# dg
+# ![dg logo](assets/cover.png)
+
 A fast data generator that produces CSV files from generated relational data
 
 ## Table of Contents
