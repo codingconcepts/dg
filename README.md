@@ -16,7 +16,7 @@ Find the release that matches your architecture on the [releases](https://github
 Download the tar and extract the executable:
 
 ```
-$ tar -xvf dg_0.1.0_macOS.tar.gz
+$ tar -xvf dg_1.0.0-rc1_macOS.tar.gz
 ```
 
 ### Concepts
