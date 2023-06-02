@@ -159,7 +159,7 @@ func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt ui.TimerFunc)
 }
 
 func writeFile(outputDir, name string, cf model.CSVFile, tt ui.TimerFunc) error {
-	defer tt(time.Now(), fmt.Sprintf("generated csv: %s", name))
+	defer tt(time.Now(), fmt.Sprintf("wrote csv: %s", name))
 
 	fullPath := path.Join(outputDir, fmt.Sprintf("%s.csv", name))
 	file, err := os.Create(fullPath)
