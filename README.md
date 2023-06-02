@@ -97,17 +97,17 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 Run the application:
 ```
 $ dg -c your_config_file.yaml -o your_output_dir
-loaded config file                       took: 401µs
-generated table: person                  took: 37.2ms
-generated table: event                   took: 151µs
-generated table: person_type             took: 42µs
-generated table: person_event            took: 1.227226s
-generated all tables                     took: 1.264675s
-generated csv: person_event              took: 149.69ms
-generated csv: person                    took: 1.132ms
-generated csv: event                     took: 114µs
-generated csv: person_type               took: 73µs
-wrote all csvs                           took: 151.099ms
+loaded config file                       took: 195µs
+generated table: person                  took: 37ms
+generated table: event                   took: 170µs
+generated table: person_type             took: 46µs
+generated table: person_event            took: 1s
+generated all tables                     took: 1s
+generated csv: person                    took: 2ms
+generated csv: event                     took: 137µs
+generated csv: person_type               took: 92µs
+generated csv: person_event              took: 142ms
+wrote all csvs                           took: 144ms
 ```
 
 This will output:
