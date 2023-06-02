@@ -96,7 +96,18 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 
 Run the application:
 ```
-$ dg -c your_config_file.yaml -o your_output_dir 
+$ dg -c your_config_file.yaml -o your_output_dir
+loaded config file                       took: 401µs
+generated table: person                  took: 37.2ms
+generated table: event                   took: 151µs
+generated table: person_type             took: 42µs
+generated table: person_event            took: 1.227226s
+generated all tables                     took: 1.264675s
+generated csv: person_event              took: 149.69ms
+generated csv: person                    took: 1.132ms
+generated csv: event                     took: 114µs
+generated csv: person_type               took: 73µs
+wrote all csvs                           took: 151.099ms
 ```
 
 This will output:
@@ -504,6 +515,8 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 ### Todos
 
 * Implement a faster random
+
+* Write file after generating, then only keep columns that other tables need
 
 * Add progress bar
 ``` go
