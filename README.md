@@ -60,6 +60,7 @@ Create a config file. In the following example, we create 10,000 people, 50 even
       type: gen
       processor:
         value: ${uuid}
+    
     # Generate a random 16 bit number and left-pad it to 5 digits
     - name: name
       type: gen
@@ -74,18 +75,21 @@ Create a config file. In the following example, we create 10,000 people, 50 even
       type: gen
       processor:
         value: ${uuid}
+    
     # Select a random id from the person_type table
     - name: person_type
       type: ref
       processor:
         table: person_type
         column: id
+    
     # Generate a person_id column for each id in the person table
     - name: person_id
       type: each
       processor:
         table: person
         column: id
+    
     # Generate an event_id column for each id in the event table
     - name: event_id
       type: each
