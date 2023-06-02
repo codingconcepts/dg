@@ -3,18 +3,14 @@ package main
 import (
 	"dg/internal/pkg/generator"
 	"dg/internal/pkg/model"
+	"dg/internal/pkg/ui"
 	"encoding/csv"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path"
-	"strings"
 	"time"
-)
-
-const (
-	maxMessageSize = 40
 )
 
 var (
@@ -39,7 +35,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	tt := timeTracker()
+	tt := ui.TimeTracker(os.Stdout, realClock{}, 40)
 
 	c, err := loadConfig(*configPath, tt)
 	if err != nil {
@@ -56,9 +52,17 @@ func main() {
 	}
 }
 
-type timerFunc func(time.Time, string)
+type realClock struct{}
 
-func loadConfig(filename string, tt timerFunc) (model.Config, error) {
+func (realClock) Now() time.Time {
+	return time.Now()
+}
+
+func (realClock) Since(t time.Time) time.Duration {
+	return time.Since(t)
+}
+
+func loadConfig(filename string, tt ui.TimerFunc) (model.Config, error) {
 	defer tt(time.Now(), "loaded config file")
 
 	file, err := os.Open(filename)
@@ -70,7 +74,7 @@ func loadConfig(filename string, tt timerFunc) (model.Config, error) {
 	return model.LoadConfig(file)
 }
 
-func generateTables(c model.Config, tt timerFunc) (map[string]model.CSVFile, error) {
+func generateTables(c model.Config, tt ui.TimerFunc) (map[string]model.CSVFile, error) {
 	defer tt(time.Now(), "generated all tables")
 
 	files := make(map[string]model.CSVFile)
@@ -83,7 +87,7 @@ func generateTables(c model.Config, tt timerFunc) (map[string]model.CSVFile, err
 	return files, nil
 }
 
-func generateTable(t model.Table, files map[string]model.CSVFile, tt timerFunc) error {
+func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFunc) error {
 	defer tt(time.Now(), fmt.Sprintf("generated table: %s", t.Name))
 
 	// Create the Cartesian product of any each types first.
@@ -138,7 +142,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt timerFunc) 
 	return nil
 }
 
-func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt timerFunc) error {
+func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt ui.TimerFunc) error {
 	defer tt(time.Now(), "wrote all csvs")
 
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
@@ -154,7 +158,7 @@ func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt timerFunc) er
 	return nil
 }
 
-func writeFile(outputDir, name string, cf model.CSVFile, tt timerFunc) error {
+func writeFile(outputDir, name string, cf model.CSVFile, tt ui.TimerFunc) error {
 	defer tt(time.Now(), fmt.Sprintf("generated csv: %s", name))
 
 	fullPath := path.Join(outputDir, fmt.Sprintf("%s.csv", name))
@@ -176,15 +180,4 @@ func writeFile(outputDir, name string, cf model.CSVFile, tt timerFunc) error {
 
 	writer.Flush()
 	return nil
-}
-
-func timeTracker() timerFunc {
-	return func(start time.Time, msg string) {
-		if len(msg) > maxMessageSize {
-			msg = msg[:maxMessageSize-3] + "..."
-		}
-
-		padding := strings.Repeat(" ", maxMessageSize-len(msg))
-		log.Printf("%s %stook: %s", msg, padding, time.Since(start).Round(time.Microsecond))
-	}
 }
