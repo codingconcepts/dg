@@ -518,8 +518,6 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 
 ### Todos
 
-* Implement a faster random
-
 * Write file after generating, then only keep columns that other tables need
 
 * Add progress bar
