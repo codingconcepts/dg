@@ -29,6 +29,10 @@ cover:
 	go tool cover -func profile.cov
 	go tool cover -html coverage.out
 
+profile:
+	go run dg.go -c ./examples/many_to_many/config.yaml -o ./csvs/many_to_many -cpuprofile profile.out
+	go tool pprof -http=:8080 profile.out
+
 release: validate_version
 	# linux
 	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\

@@ -23,7 +23,7 @@ func CartesianProduct(a ...[]string) [][]string {
 		temp := make([][]string, 0, totalCombinations)
 		for _, element := range arr {
 			for _, combination := range result {
-				// Create a new combination by appending the current element
+				// Create a new combination by appending the current element.
 				newCombination := make([]string, len(combination)+1)
 				copy(newCombination, combination)
 				newCombination[len(combination)] = element

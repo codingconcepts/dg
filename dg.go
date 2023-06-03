@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime/pprof"
 	"time"
 )
 
@@ -23,7 +24,12 @@ func main() {
 	configPath := flag.String("c", "", "the absolute or relative path to the config file")
 	outputDir := flag.String("o", ".", "the absolute or relative path to the output dir")
 	versionFlag := flag.Bool("version", false, "display the current version number")
+	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
 	flag.Parse()
+
+	if *cpuprofile != "" {
+		defer launchProfiler(*cpuprofile)()
+	}
 
 	if *versionFlag {
 		fmt.Println(version)
@@ -49,6 +55,18 @@ func main() {
 
 	if err := writeFiles(*outputDir, files, tt); err != nil {
 		log.Fatalf("error writing csv files: %v", err)
+	}
+}
+
+func launchProfiler(cpuprofile string) func() {
+	f, err := os.Create(cpuprofile)
+	if err != nil {
+		log.Fatalf("creating file for profiler: %v", err)
+	}
+	pprof.StartCPUProfile(f)
+
+	return func() {
+		pprof.StopCPUProfile()
 	}
 }
 

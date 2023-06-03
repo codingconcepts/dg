@@ -2,8 +2,8 @@ package generator
 
 import (
 	"dg/internal/pkg/model"
+	"dg/internal/pkg/random"
 	"fmt"
-	"math/rand"
 )
 
 // GenerateSetColumn selects between a set of values for a given table.
@@ -25,7 +25,7 @@ func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, fil
 		}
 	} else {
 		for i := 0; i < t.Count; i++ {
-			line = append(line, ps.Values[rand.Intn(len(ps.Values))])
+			line = append(line, ps.Values[random.Intn(len(ps.Values))])
 		}
 	}
 

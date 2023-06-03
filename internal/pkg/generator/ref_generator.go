@@ -2,8 +2,8 @@ package generator
 
 import (
 	"dg/internal/pkg/model"
+	"dg/internal/pkg/random"
 	"fmt"
-	"math/rand"
 
 	"github.com/samber/lo"
 )
@@ -27,7 +27,7 @@ func GenerateRefColumn(t model.Table, c model.Column, ptc model.ProcessorTableCo
 
 	var line []string
 	for i := 0; i < t.Count; i++ {
-		line = append(line, column[rand.Intn(len(column))])
+		line = append(line, column[random.Intn(len(column))])
 	}
 
 	addToFile(t.Name, c.Name, line, files)

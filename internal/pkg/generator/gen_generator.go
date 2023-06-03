@@ -2,7 +2,7 @@ package generator
 
 import (
 	"dg/internal/pkg/model"
-	"math/rand"
+	"dg/internal/pkg/random"
 	"strings"
 
 	"github.com/samber/lo"
@@ -26,12 +26,19 @@ func GenerateGenColumn(t model.Table, c model.Column, pg model.ProcessorGenerato
 }
 
 func replacePlaceholders(pg model.ProcessorGenerator) string {
-	r := rand.Intn(100)
+	r := random.Intn(100)
 	if r < pg.NullPercentage {
 		return ""
 	}
 
 	s := pg.Value
+
+	// Look for quick single-replacements.
+	if v, ok := replacements[s]; ok {
+		return formatValue(pg, v())
+	}
+
+	// Process multipe-replacements.
 	for k, v := range replacements {
 		if strings.Contains(s, k) {
 			valueStr := formatValue(pg, v())

@@ -24,6 +24,7 @@
       type: gen
       processor:
         value: ${uuid}
+
     - name: name
       type: gen
       processor:
@@ -38,19 +39,21 @@
       type: gen
       processor:
         value: ${uuid}
+
     - name: person_type
       type: ref
       processor:
         table: person_type
         column: id
+
     - name: person_id
       type: each
       processor:
         table: person
         column: id
+
     - name: event_id
       type: each
       processor:
         table: event
         column: id
-    
