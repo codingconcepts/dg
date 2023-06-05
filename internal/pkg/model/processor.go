@@ -17,6 +17,15 @@ func (pg ProcessorGenerator) GetFormat() string {
 	return pg.Format
 }
 
+// ProcessorRange provides additional context to a range column.
+type ProcessorRange struct {
+	Type   string `yaml:"type"`
+	From   string `yaml:"from"`
+	To     string `yaml:"to"`
+	Step   string `yaml:"step"`
+	Format string `yaml:"format"`
+}
+
 // ProcessorSet provides additional context to a set column.
 type ProcessorSet struct {
 	Values  []string `yaml:"values"`

@@ -221,7 +221,7 @@ This configuration will generate left-padded ids starting from 1, and format the
     column: id
 ```
 
-This configuration will choose a random id from the person_type table and create a **`ptype`** column to store the values.
+This configuration will choose a random id from the person_type table and create a `ptype` column to store the values.
 
 Use the `ref` type if you need to reference another table but don't need to generate a new row for *every* instance of the referenced column.
 
@@ -326,6 +326,72 @@ Here's an example of two `each` columns:
 ```
 
 Use the `each` type if you need to reference another table and need to generate a new row for *every* instance of the referenced column.
+
+**`range`** - Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows will be generated in the following priority order):
+
+1. If an `each` generator is being used, step will be derived from that
+1. If a `count` is provided, step will be derived from that
+1. Otherwise, `step` will be used
+
+Here's an example that generates all dates between `2020-01-01` and `2023-01-01` at daily intervals:
+
+``` yaml
+- table: event
+  columns:
+    - name: date
+      type: range
+      processor:
+        type: date
+        from: 2020-01-01
+        to: 2023-01-01
+        step: 24h
+        format: 2006-01-02
+```
+
+Here's an example that generates 10 dates between `2020-01-01` and `2023-01-02`:
+
+``` yaml
+- table: event
+  count: 10
+  columns:
+    - name: date
+      type: range
+      processor:
+        type: date
+        from: 2020-01-01
+        to: 2023-01-01
+        format: 2006-01-02
+        step: 24h   # Ignored due to table count.
+```
+
+Here's an example that generates 20 dates (one for every row found from an `each` generator) between `2020-01-01` and `2023-01-02`:
+
+``` yaml
+- table: person
+  count: 20
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- table: event
+  count: 10         # Ignored due to resulting count from "each" generator.
+  columns:
+    - name: person_id
+      type: each
+      processor:
+        table: person
+        column: id
+
+    - name: date
+      type: range
+      processor:
+        type: date
+        from: 2020-01-01
+        to: 2023-01-01
+        format: 2006-01-02
+```
 
 ### Functions
 

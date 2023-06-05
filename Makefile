@@ -15,6 +15,9 @@ data_many_to_many:
 data_person:
 	go run dg.go -c ./examples/person/config.yaml -o ./csvs/person
 
+data_range_test:
+	go run dg.go -c ./examples/range_test/config.yaml -o ./csvs/range_test
+
 file_server:
 	python3 -m http.server 3000 -d csvs/many_to_many
 
