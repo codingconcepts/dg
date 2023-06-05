@@ -5,6 +5,12 @@ A fast data generator that produces CSV files from generated relational data
 ## Table of Contents
 1. [Installation](#installation)
 1. [Concepts](#concepts)
+    * [gen](#gen)
+    * [set](#set)
+    * [inc](#inc)
+    * [ref](#ref)
+    * [each](#each)
+    * [range](#range)
 1. [Usage](#usage)
 1. [Functions](#functions)
 1. [Thanks](#thanks)
@@ -164,7 +170,7 @@ dg takes its configuration from a config file that is parsed in the form of an a
 
 There are three ways to generate data for columns:
 
-**`gen`** - Generate a random value for the column. Here's an example:
+##### gen - Generate a random value for the column. Here's an example:
 
 ``` yaml
 - name: sku
@@ -176,7 +182,7 @@ There are three ways to generate data for columns:
 
 This configuration will generate a random left-padded `uint16` with a prefix of "SKU" for a column called "sku". `value` contains zero or more function placeholders that can be used to generate data. A list of available functions can be found [here](https://github.com/codingconcepts/dg#functions).
 
-**`set`** - Select a value from a given set. Here's an example:
+##### set - Select a value from a given set. Here's an example:
 
 ``` yaml
 - name: user_type
@@ -199,7 +205,7 @@ Items in a set can also be given a weight, which will affect their likelihood of
 
 This configuration will select between the values "rabbit", "dog", and "cat"; each with different probabilities of being selected. Rabbits will be selected approximately 10% of the time, dogs 60%, and cats 30%. The total value doesn't have to be 100, however, you can use whichever numbers make most sense to you.
 
-**`inc`** - Generates an incrementing number. Here's an example:
+##### inc - Generates an incrementing number. Here's an example:
 
 ``` yaml
 - name: id
@@ -211,7 +217,7 @@ This configuration will select between the values "rabbit", "dog", and "cat"; ea
 
 This configuration will generate left-padded ids starting from 1, and format them with a prefix of "P".
 
-**`ref`** - References a value from a previously generated table. Here's an example:
+##### ref - References a value from a previously generated table. Here's an example:
 
 ``` yaml
 - name: ptype
@@ -225,7 +231,7 @@ This configuration will choose a random id from the person_type table and create
 
 Use the `ref` type if you need to reference another table but don't need to generate a new row for *every* instance of the referenced column.
 
-**`each`** - Creates a row for each value in another table. If multiple `each` columns are provided, a Cartesian product of both columns will be generated.
+##### each - Creates a row for each value in another table. If multiple `each` columns are provided, a Cartesian product of both columns will be generated.
 
 Here's an example of one `each` column:
 
@@ -327,7 +333,7 @@ Here's an example of two `each` columns:
 
 Use the `each` type if you need to reference another table and need to generate a new row for *every* instance of the referenced column.
 
-**`range`** - Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows will be generated in the following priority order):
+##### range - Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows will be generated in the following priority order):
 
 1. If an `each` generator is being used, step will be derived from that
 1. If a `count` is provided, step will be derived from that
