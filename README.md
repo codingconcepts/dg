@@ -345,7 +345,7 @@ Use the `each` type if you need to reference another table and need to generate 
 
 ##### range
 
-Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows will be generated in the following priority order):
+Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows) will be generated in the following priority order:
 
 1. If an `each` generator is being used, step will be derived from that
 1. If a `count` is provided, step will be derived from that
