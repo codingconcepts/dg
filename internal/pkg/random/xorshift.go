@@ -16,7 +16,7 @@ func newSplitMix64(seed int64) *splitMix64 {
 	}
 }
 
-// Int63 returns a non-negative pseudo-random 63-bit integer as an int64.
+// Intn returns a non-negative pseudo-random int.
 func Intn(n int) int {
 	return int(r.uint64()&(1<<63-1)) % n
 
