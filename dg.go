@@ -58,28 +58,6 @@ func main() {
 	}
 }
 
-func launchProfiler(cpuprofile string) func() {
-	f, err := os.Create(cpuprofile)
-	if err != nil {
-		log.Fatalf("creating file for profiler: %v", err)
-	}
-	pprof.StartCPUProfile(f)
-
-	return func() {
-		pprof.StopCPUProfile()
-	}
-}
-
-type realClock struct{}
-
-func (realClock) Now() time.Time {
-	return time.Now()
-}
-
-func (realClock) Since(t time.Time) time.Duration {
-	return time.Since(t)
-}
-
 func loadConfig(filename string, tt ui.TimerFunc) (model.Config, error) {
 	defer tt(time.Now(), "loaded config file")
 
@@ -208,4 +186,26 @@ func writeFile(outputDir, name string, cf model.CSVFile, tt ui.TimerFunc) error 
 
 	writer.Flush()
 	return nil
+}
+
+func launchProfiler(cpuprofile string) func() {
+	f, err := os.Create(cpuprofile)
+	if err != nil {
+		log.Fatalf("creating file for profiler: %v", err)
+	}
+	pprof.StartCPUProfile(f)
+
+	return func() {
+		pprof.StopCPUProfile()
+	}
+}
+
+type realClock struct{}
+
+func (realClock) Now() time.Time {
+	return time.Now()
+}
+
+func (realClock) Since(t time.Time) time.Duration {
+	return time.Since(t)
 }
