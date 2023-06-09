@@ -26,6 +26,7 @@ func TestAddToFile(t *testing.T) {
 			filesAfter: map[string]model.CSVFile{
 				"person": {
 					Name:   "person",
+					Type:   model.FileTypeOutput,
 					Header: []string{"id"},
 					Lines:  [][]string{{"a", "b", "c"}},
 				},
@@ -46,6 +47,7 @@ func TestAddToFile(t *testing.T) {
 			filesAfter: map[string]model.CSVFile{
 				"person": {
 					Name:   "person",
+					Type:   model.FileTypeOutput,
 					Header: []string{"id", "name"},
 					Lines:  [][]string{{"a", "b", "c"}, {"1", "2", "3"}},
 				},
@@ -55,8 +57,12 @@ func TestAddToFile(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			addToFile(c.table, c.column, c.line, c.filesBefore)
-			assert.Equal(t, c.filesAfter, c.filesBefore)
+			AddToFile(c.table, c.column, model.FileTypeOutput, c.line, c.filesBefore)
+
+			assert.Equal(t, c.filesAfter[c.table].Header, c.filesBefore[c.table].Header)
+			assert.Equal(t, c.filesAfter[c.table].Lines, c.filesBefore[c.table].Lines)
+			assert.Equal(t, c.filesAfter[c.table].Name, c.filesBefore[c.table].Name)
+			assert.Equal(t, model.FileTypeOutput, c.filesAfter[c.table].Type)
 		})
 	}
 }

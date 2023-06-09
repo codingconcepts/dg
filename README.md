@@ -4,14 +4,17 @@ A fast data generator that produces CSV files from generated relational data
 
 ## Table of Contents
 1. [Installation](#installation)
-1. [Concepts](#concepts)
+1. [Usage](#usage)
+1. [Processors](#processors)
     * [gen](#gen)
     * [set](#set)
     * [inc](#inc)
     * [ref](#ref)
     * [each](#each)
     * [range](#range)
-1. [Usage](#usage)
+    * [match](#match)
+1. [Inputs](#inputs)
+    * [csv](#csv)
 1. [Functions](#functions)
 1. [Thanks](#thanks)
 1. [Todos](#todos)
@@ -40,68 +43,69 @@ Usage dg:
 Create a config file. In the following example, we create 10,000 people, 50 events, 5 person types, and then populate the many-to-many `person_event` resolver table with 500,000 rows that represent the Cartesian product between the person and event tables:
 
 ``` yaml
-- table: person
-  count: 10000
-  columns:
-    # Generate a random UUID for each person
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+tables:
+  - table: person
+    count: 10000
+    columns:
+      # Generate a random UUID for each person
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-- table: event
-  count: 50
-  columns:
-    # Generate a random UUID for each event
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+  - table: event
+    count: 50
+    columns:
+      # Generate a random UUID for each event
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-- table: person_type
-  count: 5
-  columns:
-    # Generate a random UUID for each person_type
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
-    
-    # Generate a random 16 bit number and left-pad it to 5 digits
-    - name: name
-      type: gen
-      processor:
-        value: ${uint16}
-        format: "%05d"
+  - table: person_type
+    count: 5
+    columns:
+      # Generate a random UUID for each person_type
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      
+      # Generate a random 16 bit number and left-pad it to 5 digits
+      - name: name
+        type: gen
+        processor:
+          value: ${uint16}
+          format: "%05d"
 
-- table: person_event
-  columns:
-    # Generate a random UUID for each person_event
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
-    
-    # Select a random id from the person_type table
-    - name: person_type
-      type: ref
-      processor:
-        table: person_type
-        column: id
-    
-    # Generate a person_id column for each id in the person table
-    - name: person_id
-      type: each
-      processor:
-        table: person
-        column: id
-    
-    # Generate an event_id column for each id in the event table
-    - name: event_id
-      type: each
-      processor:
-        table: event
-        column: id
+  - table: person_event
+    columns:
+      # Generate a random UUID for each person_event
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      
+      # Select a random id from the person_type table
+      - name: person_type
+        type: ref
+        processor:
+          table: person_type
+          column: id
+      
+      # Generate a person_id column for each id in the person table
+      - name: person_id
+        type: each
+        processor:
+          table: person
+          column: id
+      
+      # Generate an event_id column for each id in the event table
+      - name: event_id
+        type: each
+        processor:
+          table: event
+          column: id
 ```
 
 Run the application:
@@ -164,11 +168,9 @@ CSV DATA (
 WITH skip='1', nullif = '', allow_quoted_null;
 ```
 
-### Concepts
+### Processors
 
-dg takes its configuration from a config file that is parsed in the form of an array of objects. Each object represents a CSV file to be generated for a named table and contains a collection of columns to generate data for.
-
-There are three ways to generate data for columns:
+dg takes its configuration from a config file that is parsed in the form of an object containing arrays of objects; `tables` and `inputs`. Each object in the `tables` array represents a CSV file to be generated for a named table and contains a collection of columns to generate data for.
 
 ##### gen
 
@@ -410,6 +412,71 @@ Here's an example that generates 20 dates (one for every row found from an `each
         to: 2023-01-01
         format: 2006-01-02
 ```
+
+##### match
+
+Generates data by matching data in another table. In this example, we'll assume there's a CSV file for the `significant_event` input that generates the following table:
+
+|date|event|
+|----|-----|
+|2023-01-10|abc|
+|2023-01-11||
+|2023-01-12|def|
+
+``` yaml
+inputs:
+  - name: significant_event
+    type: csv
+    source:
+      file_name: significant_dates.csv
+
+tables:
+  - table: events
+    columns:
+      - name: timeline_date
+        type: range
+        processor:
+          type: date
+          from: 2023-01-09
+          to: 2023-01-13
+          format: 2006-01-02
+          step: 24h
+      - name: timeline_event
+        type: match
+        processor:
+          source_table: significant_event
+          source_column: date
+          source_value: events
+          match_column: timeline_date
+```
+
+dg will match rows in the significant_event table with rows in the event column based on the match between `significant_event.date` and `events.date`, and take the value from the `significant_events.events` column where there's a match (otherwise leaving `NULL`). This will result in the following `events` table being generated:
+
+|timeline_date|timeline_event|
+|----|-----|
+|2023-01-09||
+|2023-01-10|abc|
+|2023-01-11||
+|2023-01-12|def|
+|2023-01-13||
+
+### Inputs
+
+dg takes its configuration from a config file that is parsed in the form of an object containing arrays of objects; `tables` and `inputs`. Each object in the `inputs` array represents a data source from which a table can be created. Tables created via inputs will not result in output CSVs.
+
+##### csv
+
+Reads in a CSV file as a table that can be referenced from other tables. Here's an example:
+
+``` yaml
+- name: significant_event
+  type: csv
+  source:
+    file_name: significant_dates.csv
+```
+
+This configuration will read from a file called significant_dates.csv and create a table from its contents. Note that the `file_name` should be relative to the config directory, so if your CSV file is in the same directory as your config file, just include the file name.
+
 
 ### Functions
 

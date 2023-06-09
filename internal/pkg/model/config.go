@@ -8,7 +8,10 @@ import (
 )
 
 // Config represents the entire contents of a config file.
-type Config []Table
+type Config struct {
+	Tables []Table `yaml:"tables"`
+	Inputs []Input `yaml:"inputs"`
+}
 
 // Table represents the instructions to create one CSV file.
 type Table struct {
@@ -22,6 +25,13 @@ type Column struct {
 	Name      string     `yaml:"name"`
 	Type      string     `yaml:"type"`
 	Processor RawMessage `yaml:"processor"`
+}
+
+// Input represents a data source provided by the user.
+type Input struct {
+	Name   string     `yaml:"name"`
+	Type   string     `yaml:"type"`
+	Source RawMessage `yaml:"source"`
 }
 
 // Load config from a file

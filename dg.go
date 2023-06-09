@@ -3,6 +3,7 @@ package main
 import (
 	"dg/internal/pkg/generator"
 	"dg/internal/pkg/model"
+	"dg/internal/pkg/source"
 	"dg/internal/pkg/ui"
 	"encoding/csv"
 	"flag"
@@ -48,8 +49,13 @@ func main() {
 		log.Fatalf("error loading config: %v", err)
 	}
 
-	files, err := generateTables(c, tt)
-	if err != nil {
+	files := make(map[string]model.CSVFile)
+
+	if err = loadInputs(c, path.Dir(*configPath), tt, files); err != nil {
+		log.Fatalf("error loading inputs: %v", err)
+	}
+
+	if err = generateTables(c, tt, files); err != nil {
 		log.Fatalf("error generating tables: %v", err)
 	}
 
@@ -70,17 +76,46 @@ func loadConfig(filename string, tt ui.TimerFunc) (model.Config, error) {
 	return model.LoadConfig(file)
 }
 
-func generateTables(c model.Config, tt ui.TimerFunc) (map[string]model.CSVFile, error) {
-	defer tt(time.Now(), "generated all tables")
+func loadInputs(c model.Config, configDir string, tt ui.TimerFunc, files map[string]model.CSVFile) error {
+	defer tt(time.Now(), "loaded data sources")
 
-	files := make(map[string]model.CSVFile)
-	for _, table := range c {
-		if err := generateTable(table, files, tt); err != nil {
-			return nil, fmt.Errorf("generating csv file for %q: %w", table.Name, err)
+	for _, input := range c.Inputs {
+		if err := loadInput(input, configDir, tt, files); err != nil {
+			return fmt.Errorf("loading input for %q: %w", input.Name, err)
 		}
 	}
 
-	return files, nil
+	return nil
+}
+
+func loadInput(input model.Input, configDir string, tt ui.TimerFunc, files map[string]model.CSVFile) error {
+	defer tt(time.Now(), fmt.Sprintf("loaded data source: %s", input.Name))
+
+	switch input.Type {
+	case "csv":
+		var s model.SourceCSV
+		if err := input.Source.UnmarshalFunc(&s); err != nil {
+			return fmt.Errorf("parsing csv source for %s: %w", input.Name, err)
+		}
+
+		if err := source.LoadCSVSource(input.Name, configDir, s, files); err != nil {
+			return fmt.Errorf("loading csv for %s: %w", input.Name, err)
+		}
+	}
+
+	return nil
+}
+
+func generateTables(c model.Config, tt ui.TimerFunc, files map[string]model.CSVFile) error {
+	defer tt(time.Now(), "generated all tables")
+
+	for _, table := range c.Tables {
+		if err := generateTable(table, files, tt); err != nil {
+			return fmt.Errorf("generating csv file for %q: %w", table.Name, err)
+		}
+	}
+
+	return nil
 }
 
 func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFunc) error {
@@ -142,6 +177,16 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			if err := generator.GenerateRangeColumn(t, col, p, files); err != nil {
 				return fmt.Errorf("running range process for %s.%s: %w", t.Name, col.Name, err)
 			}
+
+		case "match":
+			var p model.ProcessorMatch
+			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+				return fmt.Errorf("parsing match process for %s: %w", col.Name, err)
+			}
+
+			if err := generator.GenerateMatchColumn(t, col, p, files); err != nil {
+				return fmt.Errorf("running match process for %s.%s: %w", t.Name, col.Name, err)
+			}
 		}
 	}
 
@@ -156,6 +201,10 @@ func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt ui.TimerFunc)
 	}
 
 	for name, file := range cfs {
+		if file.Type != model.FileTypeOutput {
+			continue
+		}
+
 		if err := writeFile(outputDir, name, file, tt); err != nil {
 			return fmt.Errorf("writing file %q: %w", file.Name, err)
 		}

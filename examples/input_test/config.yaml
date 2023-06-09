@@ -1,0 +1,24 @@
+inputs:
+  - name: significant_event
+    type: csv
+    source:
+      file_name: significant_dates.csv
+
+tables:
+  - table: events
+    columns:
+      - name: timeline_date
+        type: range
+        processor:
+          type: date
+          from: 1885-01-01
+          to: 1985-10-26
+          format: 2006-01-02
+          step: 24h
+      - name: timeline_event
+        type: match
+        processor:
+          source_table: significant_event
+          source_column: date
+          source_value: events
+          match_column: timeline_date

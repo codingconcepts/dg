@@ -41,3 +41,11 @@ type ProcessorInc struct {
 func (pi ProcessorInc) GetFormat() string {
 	return pi.Format
 }
+
+// ProcessorMatch provides additional context to a match column.
+type ProcessorMatch struct {
+	SourceTable  string `yaml:"source_table"`
+	SourceColumn string `yaml:"source_column"`
+	SourceValue  string `yaml:"source_value"`
+	MatchColumn  string `yaml:"match_column"`
+}

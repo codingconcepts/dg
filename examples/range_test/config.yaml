@@ -1,47 +1,48 @@
-- table: previous_table
-  count: 20
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+tables:
+  - table: previous_table
+    count: 20
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-- table: each_test
-  count: 10         # Ignored due to count from "each" generator.
-  columns:
-    - name: id
-      type: each
-      processor:
-        table: previous_table
-        column: id
-    - name: should_have_20
-      type: range
-      processor:
-        type: date
-        from: 2020-01-01
-        to: 2023-01-01
-        format: 2006-01-02
-        step: 1h    # Ignored due to count from "each" generator.
+  - table: each_test
+    count: 10         # Ignored due to count from "each" generator.
+    columns:
+      - name: id
+        type: each
+        processor:
+          table: previous_table
+          column: id
+      - name: should_have_20
+        type: range
+        processor:
+          type: date
+          from: 2020-01-01
+          to: 2023-01-01
+          format: 2006-01-02
+          step: 1h    # Ignored due to count from "each" generator.
 
-- table: count_test
-  count: 10
-  columns:
-    - name: should_have_10
-      type: range
-      processor:
-        type: date
-        from: 2020-01-01
-        to: 2023-01-01
-        format: 2006-01-02
-        step: 1h    # Ignored due to count value.
+  - table: count_test
+    count: 10
+    columns:
+      - name: should_have_10
+        type: range
+        processor:
+          type: date
+          from: 2020-01-01
+          to: 2023-01-01
+          format: 2006-01-02
+          step: 1h    # Ignored due to count value.
 
-- table: step_test
-  columns:
-    - name: should_have_37
-      type: range
-      processor:
-        type: date
-        from: 2020-01-01
-        to: 2023-01-01
-        format: 2006-01-02
-        step: 730h    # Ignored due to count value.
+  - table: step_test
+    columns:
+      - name: should_have_37
+        type: range
+        processor:
+          type: date
+          from: 2020-01-01
+          to: 2023-01-01
+          format: 2006-01-02
+          step: 730h    # Ignored due to count value.

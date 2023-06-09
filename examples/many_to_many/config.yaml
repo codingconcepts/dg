@@ -1,59 +1,60 @@
-# Create data for a person table, with 10,000 rows.
-- table: person
-  count: 10000
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+tables:
+  # Create data for a person table, with 10,000 rows.
+  - table: person
+    count: 10000
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-# Create data for an event table, with 50 rows.
-- table: event
-  count: 50
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+  # Create data for an event table, with 50 rows.
+  - table: event
+    count: 50
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-# Create data for a person_type table, with 5 rows.
-- table: person_type
-  count: 5
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+  # Create data for a person_type table, with 5 rows.
+  - table: person_type
+    count: 5
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-    - name: name
-      type: gen
-      processor:
-        value: TYPE-${uint16}
-        format: "%05d"
+      - name: name
+        type: gen
+        processor:
+          value: TYPE-${uint16}
+          format: "%05d"
 
-# Create data for a person_event many-to-many resolver table between
-# the person and event tables.
-- table: person_event
-  columns:
-    - name: id
-      type: gen
-      processor:
-        value: ${uuid}
+  # Create data for a person_event many-to-many resolver table between
+  # the person and event tables.
+  - table: person_event
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
 
-    - name: person_type
-      type: ref
-      processor:
-        table: person_type
-        column: id
+      - name: person_type
+        type: ref
+        processor:
+          table: person_type
+          column: id
 
-    - name: person_id
-      type: each
-      processor:
-        table: person
-        column: id
+      - name: person_id
+        type: each
+        processor:
+          table: person
+          column: id
 
-    - name: event_id
-      type: each
-      processor:
-        table: event
-        column: id
+      - name: event_id
+        type: each
+        processor:
+          table: event
+          column: id

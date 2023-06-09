@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateRefColumn tooks to previously generated table data and references that
+// GenerateRefColumn looks to previously generated table data and references that
 // when generating data for the given table.
 func GenerateRefColumn(t model.Table, c model.Column, ptc model.ProcessorTableColumn, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
@@ -30,6 +30,6 @@ func GenerateRefColumn(t model.Table, c model.Column, ptc model.ProcessorTableCo
 		line = append(line, column[random.Intn(len(column))])
 	}
 
-	addToFile(t.Name, c.Name, line, files)
+	AddToFile(t.Name, c.Name, model.FileTypeOutput, line, files)
 	return nil
 }

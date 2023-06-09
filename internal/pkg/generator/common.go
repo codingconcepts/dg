@@ -5,10 +5,12 @@ import (
 	"fmt"
 )
 
-func addToFile(table, column string, line []string, files map[string]model.CSVFile) {
+// AddToFile adds a column to a table in the given files map.
+func AddToFile(table, column string, fileType model.FileType, line []string, files map[string]model.CSVFile) {
 	if _, ok := files[table]; !ok {
 		files[table] = model.CSVFile{
 			Name: table,
+			Type: fileType,
 		}
 	}
 

@@ -1,32 +1,33 @@
-# Generate data for a person table, showing off a couple of column generators.
-- table: person
-  count: 100
-  columns:
-    - name: id
-      type: inc
-      processor:
-        start: 1
-        format: "P%03d"
-    - name: full_name
-      type: gen
-      processor:
-        value: ${name_prefix} ${first_name} ${last_name}
-    - name: date_of_birth
-      type: gen
-      processor:
-        value: ${date}
-        format: 2006-01-02
-    - name: sku
-      type: gen
-      processor:
-        value: SKU${uint16}
-        format: "%05d"
-    - name: user_type
-      type: set
-      processor:
-        values: [admin, regular, read-only]
-    - name: favourite_animal
-      type: set
-      processor:
-        values: [rabbit, dog, cat]
-        weights: [10, 60, 30]
+tables:
+  # Generate data for a person table, showing off a couple of column generators.
+  - table: person
+    count: 100
+    columns:
+      - name: id
+        type: inc
+        processor:
+          start: 1
+          format: "P%03d"
+      - name: full_name
+        type: gen
+        processor:
+          value: ${name_prefix} ${first_name} ${last_name}
+      - name: date_of_birth
+        type: gen
+        processor:
+          value: ${date}
+          format: 2006-01-02
+      - name: sku
+        type: gen
+        processor:
+          value: SKU${uint16}
+          format: "%05d"
+      - name: user_type
+        type: set
+        processor:
+          values: [admin, regular, read-only]
+      - name: favourite_animal
+        type: set
+        processor:
+          values: [rabbit, dog, cat]
+          weights: [10, 60, 30]
