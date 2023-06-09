@@ -26,7 +26,7 @@ Find the release that matches your architecture on the [releases](https://github
 Download the tar, extract the executable, and move it into your PATH:
 
 ```
-$ tar -xvf dg_1.0.0-rc1_macOS.tar.gz
+$ tar -xvf dg_[VERSION]-rc1_macOS.tar.gz
 ```
 
 ### Usage
