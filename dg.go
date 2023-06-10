@@ -43,6 +43,7 @@ func main() {
 	}
 
 	tt := ui.TimeTracker(os.Stdout, realClock{}, 40)
+	defer tt(time.Now(), "done")
 
 	c, err := loadConfig(*configPath, tt)
 	if err != nil {
