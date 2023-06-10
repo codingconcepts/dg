@@ -30,6 +30,6 @@ func GenerateRefColumn(t model.Table, c model.Column, ptc model.ProcessorTableCo
 		line = append(line, column[random.Intn(len(column))])
 	}
 
-	AddToFile(t.Name, c.Name, model.FileTypeOutput, line, files)
+	AddTable(t.Name, c.Name, line, files)
 	return nil
 }

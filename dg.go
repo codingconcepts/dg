@@ -202,7 +202,7 @@ func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt ui.TimerFunc)
 	}
 
 	for name, file := range cfs {
-		if file.Type != model.FileTypeOutput {
+		if !file.Output {
 			continue
 		}
 

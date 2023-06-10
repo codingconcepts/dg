@@ -24,7 +24,7 @@ func GenerateRangeColumn(t model.Table, c model.Column, pr model.ProcessorRange,
 			return fmt.Errorf("generating date slice: %w", err)
 		}
 
-		AddToFile(t.Name, c.Name, model.FileTypeOutput, lines, files)
+		AddTable(t.Name, c.Name, lines, files)
 		return nil
 	default:
 		return fmt.Errorf("%q is not a valid range type", pr.Type)

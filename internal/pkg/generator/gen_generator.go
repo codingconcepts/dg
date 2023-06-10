@@ -21,7 +21,7 @@ func GenerateGenColumn(t model.Table, c model.Column, pg model.ProcessorGenerato
 		line = append(line, replacePlaceholders(pg))
 	}
 
-	AddToFile(t.Name, c.Name, model.FileTypeOutput, line, files)
+	AddTable(t.Name, c.Name, line, files)
 	return nil
 }
 

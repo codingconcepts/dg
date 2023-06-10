@@ -37,7 +37,7 @@ func processCSVSource(file io.Reader, table string, files map[string]model.CSVFi
 	columns := generator.Transpose(rows[1:])
 
 	for i, column := range columns {
-		generator.AddToFile(table, headers[i], model.FileTypeInput, column, files)
+		generator.AddInput(table, headers[i], column, files)
 	}
 
 	return nil

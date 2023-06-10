@@ -5,15 +5,31 @@ import (
 	"fmt"
 )
 
-// AddToFile adds a column to a table in the given files map.
-func AddToFile(table, column string, fileType model.FileType, line []string, files map[string]model.CSVFile) {
+// AddTable adds a column to a table in the given files map.
+func AddTable(table, column string, line []string, files map[string]model.CSVFile) {
 	if _, ok := files[table]; !ok {
 		files[table] = model.CSVFile{
-			Name: table,
-			Type: fileType,
+			Name:   table,
+			Output: true,
 		}
 	}
 
+	add(files, table, column, line)
+}
+
+// AddInput adds a column to a table in the given files map.
+func AddInput(table, column string, line []string, files map[string]model.CSVFile) {
+	if _, ok := files[table]; !ok {
+		files[table] = model.CSVFile{
+			Name:   table,
+			Output: false,
+		}
+	}
+
+	add(files, table, column, line)
+}
+
+func add(files map[string]model.CSVFile, table string, column string, line []string) {
 	foundTable := files[table]
 	foundTable.Header = append(foundTable.Header, column)
 	foundTable.Lines = append(foundTable.Lines, line)
