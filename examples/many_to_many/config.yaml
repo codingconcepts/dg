@@ -1,5 +1,5 @@
 tables:
-  # Create data for a person table, with 10,000 rows.
+  # Create data for a person table.
   - table: person
     count: 10000
     columns:
@@ -8,9 +8,9 @@ tables:
         processor:
           value: ${uuid}
 
-  # Create data for an event table, with 50 rows.
+  # Create data for an event table.
   - table: event
-    count: 50
+    count: 100
     columns:
       - name: id
         type: gen
@@ -36,17 +36,6 @@ tables:
   # the person and event tables.
   - table: person_event
     columns:
-      - name: id
-        type: gen
-        processor:
-          value: ${uuid}
-
-      - name: person_type
-        type: ref
-        processor:
-          table: person_type
-          column: id
-
       - name: person_id
         type: each
         processor:
