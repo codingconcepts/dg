@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/cover.png" alt="drawing" width="150"/>
+  <img src="assets/cover.png" alt="drawing" width="350"/>
 </p>
 
 A fast data generator that produces CSV files from generated relational data
