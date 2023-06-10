@@ -672,15 +672,3 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 ### Todos
 
 * Write file after generating, then only keep columns that other tables need
-
-* Add progress bar
-``` go
-count := 10000
-
-tmpl := `{{ bar . "[" "-" ">" " " "]"}} {{percent .}}`
-bar := pb.ProgressBarTemplate(tmpl).Start(count)
-
-for i := 0; i < count; i++ {
-  bar.Increment()
-}
-```
