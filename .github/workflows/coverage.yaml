@@ -3,7 +3,7 @@ name: main-coverage
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   coverage:
