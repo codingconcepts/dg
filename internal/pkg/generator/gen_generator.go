@@ -3,8 +3,8 @@ package generator
 import (
 	"strings"
 
-	"github.com/codingconcepts/dg/v1/internal/pkg/model"
-	"github.com/codingconcepts/dg/v1/internal/pkg/random"
+	"github.com/codingconcepts/dg/internal/pkg/model"
+	"github.com/codingconcepts/dg/internal/pkg/random"
 
 	"github.com/samber/lo"
 )

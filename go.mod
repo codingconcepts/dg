@@ -1,4 +1,4 @@
-module github.com/codingconcepts/dg/v1
+module github.com/codingconcepts/dg
 
 go 1.20
 

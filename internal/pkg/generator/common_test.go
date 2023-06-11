@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/codingconcepts/dg/v1/internal/pkg/model"
+	"github.com/codingconcepts/dg/internal/pkg/model"
 
 	"github.com/stretchr/testify/assert"
 )
