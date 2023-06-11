@@ -14,7 +14,7 @@ func TestGenerateEachColumn(t *testing.T) {
 			{
 				Name: "person_id",
 				Type: "each",
-				Processor: toRawMessage(t, model.ProcessorTableColumn{
+				Processor: model.ToRawMessage(t, model.ProcessorTableColumn{
 					Table:  "person",
 					Column: "id",
 				}),
@@ -22,7 +22,7 @@ func TestGenerateEachColumn(t *testing.T) {
 			{
 				Name: "event_id",
 				Type: "each",
-				Processor: toRawMessage(t, model.ProcessorTableColumn{
+				Processor: model.ToRawMessage(t, model.ProcessorTableColumn{
 					Table:  "event",
 					Column: "id",
 				}),

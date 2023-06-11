@@ -1,12 +1,10 @@
 package generator
 
 import (
-	"bytes"
 	"testing"
 	"time"
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
-	"gopkg.in/yaml.v3"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -101,18 +99,4 @@ func TestFormatValue(t *testing.T) {
 			assert.Equal(t, c.exp, act)
 		})
 	}
-}
-
-func toRawMessage(t *testing.T, v any) model.RawMessage {
-	buf := &bytes.Buffer{}
-	if err := yaml.NewEncoder(buf).Encode(v); err != nil {
-		t.Fatalf("error encoding to yaml: %v", err)
-	}
-
-	var rawMessage model.RawMessage
-	if err := yaml.NewDecoder(buf).Decode(&rawMessage); err != nil {
-		t.Fatalf("error decoding from yaml: %v", err)
-	}
-
-	return rawMessage
 }
