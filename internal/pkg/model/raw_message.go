@@ -9,7 +9,3 @@ func (msg *RawMessage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	msg.UnmarshalFunc = unmarshal
 	return nil
 }
-
-func (msg *RawMessage) Unmarshal(v any) error {
-	return msg.UnmarshalFunc(v)
-}
