@@ -1,0 +1,14 @@
+name: ci-main
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  coverage:
+    steps:
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
