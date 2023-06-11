@@ -1,13 +1,14 @@
 package source
 
 import (
-	"dg/internal/pkg/generator"
-	"dg/internal/pkg/model"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
 	"path"
+
+	"github.com/codingconcepts/dg/internal/pkg/generator"
+	"github.com/codingconcepts/dg/internal/pkg/model"
 )
 
 // LoadCSVSource loads a CSV file from disk and adds it as a table to files.

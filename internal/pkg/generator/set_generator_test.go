@@ -1,8 +1,9 @@
 package generator
 
 import (
-	"dg/internal/pkg/model"
 	"testing"
+
+	"github.com/codingconcepts/dg/internal/pkg/model"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -1,11 +1,11 @@
-module dg
+module github.com/codingconcepts/dg
 
 go 1.20
 
 require (
-	github.com/brianvoe/gofakeit/v6 v6.21.0
+	github.com/brianvoe/gofakeit/v6 v6.22.0
 	github.com/samber/lo v1.38.1
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	gopkg.in/yaml.v3 v3.0.1
 )
 

@@ -1,9 +1,10 @@
 package generator
 
 import (
-	"dg/internal/pkg/model"
-	"dg/internal/pkg/random"
 	"strings"
+
+	"github.com/codingconcepts/dg/internal/pkg/model"
+	"github.com/codingconcepts/dg/internal/pkg/random"
 
 	"github.com/samber/lo"
 )

@@ -1,8 +1,8 @@
 package generator
 
 import (
-	"dg/internal/pkg/model"
 	"fmt"
+	"github.com/codingconcepts/dg/internal/pkg/model"
 
 	"github.com/samber/lo"
 )

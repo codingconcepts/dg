@@ -1,10 +1,6 @@
 package main
 
 import (
-	"dg/internal/pkg/generator"
-	"dg/internal/pkg/model"
-	"dg/internal/pkg/source"
-	"dg/internal/pkg/ui"
 	"encoding/csv"
 	"flag"
 	"fmt"
@@ -13,6 +9,11 @@ import (
 	"path"
 	"runtime/pprof"
 	"time"
+
+	"github.com/codingconcepts/dg/internal/pkg/generator"
+	"github.com/codingconcepts/dg/internal/pkg/model"
+	"github.com/codingconcepts/dg/internal/pkg/source"
+	"github.com/codingconcepts/dg/internal/pkg/ui"
 )
 
 var (
