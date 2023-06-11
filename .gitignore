@@ -15,6 +15,9 @@
 # Go workspace file
 go.work
 
+# OS-specific
+.DS_Store
+
 # Application-specific
 csvs
 releases
