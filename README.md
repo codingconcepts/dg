@@ -673,5 +673,4 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 
 * Better support for post generation (e.g. `IMPORT`)
 * Improve code coverage
-* Simplify examples and include other database examples
 * Write file after generating, then only keep columns that other tables need

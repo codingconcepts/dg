@@ -33,7 +33,7 @@ test:
 cover:
 	go test -v -coverpkg=./... -coverprofile=profile.cov ./... -count=1
 	go tool cover -func profile.cov
-	go tool cover -html coverage.out
+	# go tool cover -html coverage.out
 
 profile:
 	go run dg.go -c ./examples/many_to_many/config.yaml -o ./csvs/many_to_many -cpuprofile profile.out

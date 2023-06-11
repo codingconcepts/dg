@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -113,6 +114,95 @@ func TestTranspose(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			actual := Transpose(c.input)
 			assert.Equal(t, c.output, actual)
+		})
+	}
+}
+
+func TestGenerateDateSlice(t *testing.T) {
+	cases := []struct {
+		name     string
+		from     string
+		to       string
+		format   string
+		count    int
+		step     string
+		expSlice []string
+		expError string
+	}{
+		{
+			name:     "no count or step",
+			expError: "either a count or a step must be provided to a date range generator",
+		},
+		{
+			name:   "count",
+			count:  10,
+			from:   "2023-01-01",
+			to:     "2023-01-10",
+			format: "2006-01-02",
+			expSlice: []string{
+				"2023-01-01", "2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04", "2023-01-05", "2023-01-06", "2023-01-07", "2023-01-08", "2023-01-09",
+			},
+		},
+		{
+			name:   "step",
+			step:   "24h",
+			from:   "2023-01-10",
+			to:     "2023-01-20",
+			format: "2006-01-02",
+			expSlice: []string{
+				"2023-01-10", "2023-01-11", "2023-01-12", "2023-01-13", "2023-01-14", "2023-01-15", "2023-01-16", "2023-01-17", "2023-01-18", "2023-01-19",
+			},
+		},
+		{
+			name:     "invalid format",
+			count:    10,
+			from:     "2023-01-01",
+			to:       "2023-01-10",
+			format:   "abc",
+			expError: `parsing from date: parsing time "2023-01-01" as "abc": cannot parse "2023-01-01" as "abc"`,
+		},
+		{
+			name:     "invalid from date",
+			count:    10,
+			from:     "abc",
+			format:   "2006-01-02",
+			to:       "2023-01-10",
+			expError: `parsing from date: parsing time "abc" as "2006-01-02": cannot parse "abc" as "2006"`,
+		},
+		{
+			name:     "invalid to date",
+			count:    10,
+			from:     "2023-01-01",
+			to:       "abc",
+			format:   "2006-01-02",
+			expError: `parsing to date: parsing time "abc" as "2006-01-02": cannot parse "abc" as "2006"`,
+		},
+		{
+			name:     "invalid step",
+			step:     "abc",
+			from:     "2023-01-01",
+			to:       "2023-01-10",
+			format:   "2006-01-02",
+			expError: `parsing step: time: invalid duration "abc"`,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			pr := model.ProcessorRange{
+				From:   c.from,
+				To:     c.to,
+				Format: c.format,
+				Step:   c.step,
+			}
+
+			actSlice, actErr := generateDateSlice(pr, c.count)
+			if c.expError != "" {
+				assert.Equal(t, c.expError, actErr.Error())
+				return
+			}
+
+			assert.Equal(t, c.expSlice, actSlice)
 		})
 	}
 }
