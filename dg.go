@@ -10,10 +10,10 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"github.com/codingconcepts/dg/internal/pkg/generator"
-	"github.com/codingconcepts/dg/internal/pkg/model"
-	"github.com/codingconcepts/dg/internal/pkg/source"
-	"github.com/codingconcepts/dg/internal/pkg/ui"
+	"github.com/codingconcepts/dg/v1/internal/pkg/generator"
+	"github.com/codingconcepts/dg/v1/internal/pkg/model"
+	"github.com/codingconcepts/dg/v1/internal/pkg/source"
+	"github.com/codingconcepts/dg/v1/internal/pkg/ui"
 )
 
 var (

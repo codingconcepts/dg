@@ -2,7 +2,8 @@ package generator
 
 import (
 	"fmt"
-	"github.com/codingconcepts/dg/internal/pkg/model"
+
+	"github.com/codingconcepts/dg/v1/internal/pkg/model"
 )
 
 // AddTable adds a column to a table in the given files map.

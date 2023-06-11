@@ -672,3 +672,6 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 ### Todos
 
 * Write file after generating, then only keep columns that other tables need
+
+GOPROXY=https://proxy.golang.org GO111MODULE=on go get github.com/codingconcepts/dg@latest
+
