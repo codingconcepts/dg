@@ -1,22 +1,23 @@
 package source
 
 import (
-	"strings"
+	"os"
+	"path"
 	"testing"
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProcessCSVSource(t *testing.T) {
-	file := strings.NewReader("col_a,col_b,col_c\nA,B,C\n1,2,3")
+func TestLoadCSVSource(t *testing.T) {
+	filePath := path.Join(t.TempDir(), "load_test.csv")
+	assert.NoError(t, os.WriteFile(filePath, []byte("col_a,col_b,col_c\nA,B,C\n1,2,3"), os.ModePerm))
 
 	table := "input"
-
 	files := make(map[string]model.CSVFile)
+	s := model.SourceCSV{FileName: "load_test.csv"}
 
-	err := processCSVSource(file, table, files)
-	assert.Nil(t, err)
+	assert.NoError(t, LoadCSVSource(table, path.Dir(filePath), s, files))
 
 	expCSVFile := model.CSVFile{
 		Name:   "input",
@@ -26,5 +27,6 @@ func TestProcessCSVSource(t *testing.T) {
 			{"B", "2"},
 			{"C", "3"}},
 		Output: false}
+
 	assert.Equal(t, expCSVFile, files["input"])
 }
