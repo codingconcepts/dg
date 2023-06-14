@@ -69,7 +69,7 @@ func main() {
 	}
 
 	if *createImports != "" {
-		if err := writeImports(*outputDir, *createImports, files, tt); err != nil {
+		if err := writeImports(*outputDir, *createImports, c, files, tt); err != nil {
 			log.Fatalf("error writing import statements: %v", err)
 		}
 	}
@@ -257,7 +257,7 @@ func writeFile(outputDir, name string, cf model.CSVFile, tt ui.TimerFunc) error 
 	return nil
 }
 
-func writeImports(outputDir, name string, cfs map[string]model.CSVFile, tt ui.TimerFunc) error {
+func writeImports(outputDir, name string, c model.Config, files map[string]model.CSVFile, tt ui.TimerFunc) error {
 	defer tt(time.Now(), fmt.Sprintf("wrote imports: %s", name))
 
 	importTmpl := template.Must(template.New("import").
@@ -280,7 +280,9 @@ WITH skip='1', nullif = '', allow_quoted_null;
 	}
 	defer file.Close()
 
-	for name, csv := range cfs {
+	// Iterate through the tables in the config file, so the imports are in the right order.
+	for _, table := range c.Tables {
+		csv := files[table.Name]
 		if !csv.Output {
 			continue
 		}
