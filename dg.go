@@ -8,6 +8,8 @@ import (
 	"os"
 	"path"
 	"runtime/pprof"
+	"strings"
+	"text/template"
 	"time"
 
 	"github.com/codingconcepts/dg/internal/pkg/generator"
@@ -25,8 +27,9 @@ func main() {
 
 	configPath := flag.String("c", "", "the absolute or relative path to the config file")
 	outputDir := flag.String("o", ".", "the absolute or relative path to the output dir")
-	versionFlag := flag.Bool("version", false, "display the current version number")
+	createImports := flag.String("i", "", "write import statements to file")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
+	versionFlag := flag.Bool("version", false, "display the current version number")
 	flag.Parse()
 
 	if *cpuprofile != "" {
@@ -63,6 +66,12 @@ func main() {
 
 	if err := writeFiles(*outputDir, files, tt); err != nil {
 		log.Fatalf("error writing csv files: %v", err)
+	}
+
+	if *createImports != "" {
+		if err := writeImports(*outputDir, *createImports, files, tt); err != nil {
+			log.Fatalf("error writing import statements: %v", err)
+		}
 	}
 }
 
@@ -236,6 +245,42 @@ func writeFile(outputDir, name string, cf model.CSVFile, tt ui.TimerFunc) error 
 	}
 
 	writer.Flush()
+	return nil
+}
+
+func writeImports(outputDir, name string, cfs map[string]model.CSVFile, tt ui.TimerFunc) error {
+	defer tt(time.Now(), fmt.Sprintf("wrote imports: %s", name))
+
+	importTmpl := template.Must(template.New("import").
+		Funcs(template.FuncMap{"join": strings.Join}).
+		Parse(`IMPORT INTO {{.Name}} (
+	{{ join .Header ", " }}
+)
+CSV DATA (
+    '.../{{.Name}}.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+`),
+	)
+
+	fullPath := path.Join(outputDir, name)
+	file, err := os.Create(fullPath)
+	if err != nil {
+		return fmt.Errorf("creating csv file %q: %w", name, err)
+	}
+	defer file.Close()
+
+	for name, csv := range cfs {
+		if !csv.Output {
+			continue
+		}
+
+		if err := importTmpl.Execute(file, csv); err != nil {
+			return fmt.Errorf("writing import statement for %q: %w", name, err)
+		}
+	}
+
 	return nil
 }
 

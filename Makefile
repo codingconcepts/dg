@@ -10,7 +10,7 @@ tables:
 	cockroach sql --insecure < examples/many_to_many/create.sql
 
 data_many_to_many:
-	go run dg.go -c ./examples/many_to_many/config.yaml -o ./csvs/many_to_many
+	go run dg.go -c ./examples/many_to_many/config.yaml -o ./csvs/many_to_many -i import.sql
 
 data_person:
 	go run dg.go -c ./examples/person/config.yaml -o ./csvs/person
