@@ -46,7 +46,7 @@ Create a config file. In the following example, we create 10,000 people, 50 even
 
 ``` yaml
 tables:
-  - table: person
+  - name: person
     count: 10000
     columns:
       # Generate a random UUID for each person
@@ -55,7 +55,7 @@ tables:
         processor:
           value: ${uuid}
 
-  - table: event
+  - name: event
     count: 50
     columns:
       # Generate a random UUID for each event
@@ -64,7 +64,7 @@ tables:
         processor:
           value: ${uuid}
 
-  - table: person_type
+  - name: person_type
     count: 5
     columns:
       # Generate a random UUID for each person_type
@@ -80,7 +80,7 @@ tables:
           value: ${uint16}
           format: "%05d"
 
-  - table: person_event
+  - name: person_event
     columns:
       # Generate a random UUID for each person_event
       - name: id
@@ -170,6 +170,30 @@ CSV DATA (
 WITH skip='1', nullif = '', allow_quoted_null;
 ```
 
+### Tables
+
+Table elements instruct dg to generate data for a single table and output it as a csv file. Here are the configuration options for a table:
+
+``` yaml
+tables:
+  - name: person
+    unique_columns: [col_a, col_b]
+    count: 10
+    columns:
+      ...
+```
+
+This config generates 10 random rows for the person table. Here's a breakdown of the fields:
+
+|Field Name|Optional|Description|
+|----------|--------|-----------|
+|name|No|Name of the table. Must be unique.|
+|unique_columns|Yes|Removes duplicates from the table based on the column names provided|
+|count|Yes|If provided, will determine the number of rows created. If not provided, will be calculated by the current table size.|
+|columns|No|A collection of columns to generate for the table.|
+
+
+
 ### Processors
 
 dg takes its configuration from a config file that is parsed in the form of an object containing arrays of objects; `tables` and `inputs`. Each object in the `tables` array represents a CSV file to be generated for a named table and contains a collection of columns to generate data for.
@@ -250,7 +274,7 @@ Creates a row for each value in another table. If multiple `each` columns are pr
 Here's an example of one `each` column:
 
 ``` yaml
-- table: person
+- name: person
   count: 3
   columns:
     - name: id
@@ -265,7 +289,7 @@ Here's an example of one `each` column:
 # 58f42be2-6cc9-4a8c-b702-c72ab1decfea
 # ccbc2244-667b-4bb5-a5cd-a1e9626a90f9
 
-- table: pet
+- name: pet
   columns:
     - name: person_id
       type: each
@@ -288,7 +312,7 @@ Here's an example of one `each` column:
 Here's an example of two `each` columns:
 
 ``` yaml
-- table: person
+- name: person
   count: 3
   columns:
     - name: id
@@ -303,7 +327,7 @@ Here's an example of two `each` columns:
 # 58f42be2-6cc9-4a8c-b702-c72ab1decfea
 # ccbc2244-667b-4bb5-a5cd-a1e9626a90f9
 
-- table: event
+- name: event
   count: 3
   columns:
     - name: id
@@ -318,7 +342,7 @@ Here's an example of two `each` columns:
 # 7be981a9-679b-432a-8a0f-4a0267170c68
 # 9954f321-8040-4cd7-96e6-248d03ee9266
 
-- table: person_event
+- name: person_event
   columns:
     - name: person_id
       type: each
@@ -358,7 +382,7 @@ Generates data within a given range. Note that a number of factors determine how
 Here's an example that generates all dates between `2020-01-01` and `2023-01-01` at daily intervals:
 
 ``` yaml
-- table: event
+- name: event
   columns:
     - name: date
       type: range
@@ -373,7 +397,7 @@ Here's an example that generates all dates between `2020-01-01` and `2023-01-01`
 Here's an example that generates 10 dates between `2020-01-01` and `2023-01-02`:
 
 ``` yaml
-- table: event
+- name: event
   count: 10
   columns:
     - name: date
@@ -389,7 +413,7 @@ Here's an example that generates 10 dates between `2020-01-01` and `2023-01-02`:
 Here's an example that generates 20 dates (one for every row found from an `each` generator) between `2020-01-01` and `2023-01-02`:
 
 ``` yaml
-- table: person
+- name: person
   count: 20
   columns:
     - name: id
@@ -397,7 +421,7 @@ Here's an example that generates 20 dates (one for every row found from an `each
       processor:
         value: ${uuid}
 
-- table: event
+- name: event
   count: 10         # Ignored due to resulting count from "each" generator.
   columns:
     - name: person_id
@@ -433,7 +457,7 @@ inputs:
       file_name: significant_dates.csv
 
 tables:
-  - table: events
+  - name: events
     columns:
       - name: timeline_date
         type: range

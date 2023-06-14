@@ -1,6 +1,6 @@
 tables:
   # Generate data for a person table, showing off a couple of column generators.
-  - table: person
+  - name: person
     count: 100
     columns:
       - name: id

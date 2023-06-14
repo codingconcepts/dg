@@ -16,7 +16,7 @@ inputs:
       file_name: my_data.csv
 
 tables:
-  - table: person
+  - name: person
     count: 100
     columns:
       - name: id

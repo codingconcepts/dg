@@ -1,5 +1,5 @@
 tables:
-  - table: person
+  - name: person
     unique_columns: [col_a, col_b]
     count: 10
     columns:

@@ -1,5 +1,5 @@
 tables:
-  - table: previous_table
+  - name: previous_table
     count: 20
     columns:
       - name: id
@@ -7,7 +7,7 @@ tables:
         processor:
           value: ${uuid}
 
-  - table: each_test
+  - name: each_test
     count: 10         # Ignored due to count from "each" generator.
     columns:
       - name: id
@@ -24,7 +24,7 @@ tables:
           format: 2006-01-02
           step: 1h    # Ignored due to count from "each" generator.
 
-  - table: count_test
+  - name: count_test
     count: 10
     columns:
       - name: should_have_10
@@ -36,7 +36,7 @@ tables:
           format: 2006-01-02
           step: 1h    # Ignored due to count value.
 
-  - table: step_test
+  - name: step_test
     columns:
       - name: should_have_37
         type: range

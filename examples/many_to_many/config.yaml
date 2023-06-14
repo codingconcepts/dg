@@ -1,6 +1,6 @@
 tables:
   # Create data for a person table.
-  - table: person
+  - name: person
     count: 10000
     columns:
       - name: id
@@ -9,7 +9,7 @@ tables:
           value: ${uuid}
 
   # Create data for an event table.
-  - table: event
+  - name: event
     count: 100
     columns:
       - name: id
@@ -18,7 +18,7 @@ tables:
           value: ${uuid}
 
   # Create data for a person_type table, with 5 rows.
-  - table: person_type
+  - name: person_type
     count: 5
     columns:
       - name: id
@@ -34,7 +34,7 @@ tables:
 
   # Create data for a person_event many-to-many resolver table between
   # the person and event tables.
-  - table: person_event
+  - name: person_event
     columns:
       - name: person_id
         type: each
