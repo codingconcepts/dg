@@ -5,6 +5,7 @@ import (
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/codingconcepts/dg/internal/pkg/random"
+	"github.com/samber/lo"
 )
 
 // GenerateSetColumn selects between a set of values for a given table.
@@ -13,19 +14,26 @@ func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, fil
 		return fmt.Errorf("no values provided for set generator")
 	}
 
-	var line []string
+	count := len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
+		return len(a) > len(b)
+	}))
 
+	if count == 0 {
+		count = t.Count
+	}
+
+	var line []string
 	if len(ps.Weights) > 0 {
 		items, err := buildWeightedItems(ps)
 		if err != nil {
 			return fmt.Errorf("making weighted items collection: %w", err)
 		}
 
-		for i := 0; i < t.Count; i++ {
+		for i := 0; i < count; i++ {
 			line = append(line, items.choose())
 		}
 	} else {
-		for i := 0; i < t.Count; i++ {
+		for i := 0; i < count; i++ {
 			line = append(line, ps.Values[random.Intn(len(ps.Values))])
 		}
 	}
