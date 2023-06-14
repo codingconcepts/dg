@@ -7,7 +7,7 @@ A fast data generator that produces CSV files from generated relational data.
 ## Table of Contents
 1. [Installation](#installation)
 1. [Usage](#usage)
-1. [Processors](#processors)
+1. [Tables](#tables)
     * [gen](#gen)
     * [set](#set)
     * [inc](#inc)
@@ -192,9 +192,7 @@ This config generates 10 random rows for the person table. Here's a breakdown of
 |count|Yes|If provided, will determine the number of rows created. If not provided, will be calculated by the current table size.|
 |columns|No|A collection of columns to generate for the table.|
 
-
-
-### Processors
+#### Processors
 
 dg takes its configuration from a config file that is parsed in the form of an object containing arrays of objects; `tables` and `inputs`. Each object in the `tables` array represents a CSV file to be generated for a named table and contains a collection of columns to generate data for.
 
