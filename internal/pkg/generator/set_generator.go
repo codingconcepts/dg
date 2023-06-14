@@ -38,7 +38,7 @@ func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, fil
 		}
 	}
 
-	AddTable(t.Name, c.Name, line, files)
+	AddTable(t, c.Name, line, files)
 	return nil
 }
 

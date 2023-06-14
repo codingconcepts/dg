@@ -38,7 +38,7 @@ func GenerateEachColumns(t model.Table, files map[string]model.CSVFile) error {
 
 	// Add the header
 	for i, col := range cartesianColumns {
-		AddTable(t.Name, cols[i].Name, col, files)
+		AddTable(t, cols[i].Name, col, files)
 	}
 
 	return nil

@@ -21,6 +21,9 @@ data_range_test:
 data_input_test:
 	go run dg.go -c ./examples/input_test/config.yaml -o ./csvs/input_test
 
+data_unique_test:
+	go run dg.go -c ./examples/unique_test/config.yaml -o ./csvs/unique_test
+
 file_server:
 	python3 -m http.server 3000 -d csvs/many_to_many
 

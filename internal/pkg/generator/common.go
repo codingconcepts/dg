@@ -7,15 +7,16 @@ import (
 )
 
 // AddTable adds a column to a table in the given files map.
-func AddTable(table, column string, line []string, files map[string]model.CSVFile) {
-	if _, ok := files[table]; !ok {
-		files[table] = model.CSVFile{
-			Name:   table,
-			Output: true,
+func AddTable(table model.Table, column string, line []string, files map[string]model.CSVFile) {
+	if _, ok := files[table.Name]; !ok {
+		files[table.Name] = model.CSVFile{
+			Name:          table.Name,
+			Output:        true,
+			UniqueColumns: table.UniqueColumns,
 		}
 	}
 
-	add(files, table, column, line)
+	add(files, table.Name, column, line)
 }
 
 // AddInput adds a column to a table in the given files map.

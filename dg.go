@@ -201,6 +201,14 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 		}
 	}
 
+	file := files[t.Name]
+	if len(file.UniqueColumns) > 0 {
+		file.Lines = generator.Transpose(file.Lines)
+		file.Lines = file.Unique()
+		file.Lines = generator.Transpose(file.Lines)
+	}
+	files[t.Name] = file
+
 	return nil
 }
 
@@ -239,8 +247,9 @@ func writeFile(outputDir, name string, cf model.CSVFile, tt ui.TimerFunc) error 
 		return fmt.Errorf("writing csv header for %q: %w", name, err)
 	}
 
-	lines := generator.Transpose(cf.Lines)
-	if err = writer.WriteAll(lines); err != nil {
+	cf.Lines = generator.Transpose(cf.Lines)
+
+	if err = writer.WriteAll(cf.Lines); err != nil {
 		return fmt.Errorf("writing csv lines for %q: %w", name, err)
 	}
 

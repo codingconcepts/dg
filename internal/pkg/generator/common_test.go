@@ -56,7 +56,10 @@ func TestAddToFile(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			AddTable(c.table, c.column, c.line, c.filesBefore)
+			table := model.Table{
+				Name: c.table,
+			}
+			AddTable(table, c.column, c.line, c.filesBefore)
 
 			assert.Equal(t, c.filesAfter[c.table].Header, c.filesBefore[c.table].Header)
 			assert.Equal(t, c.filesAfter[c.table].Lines, c.filesBefore[c.table].Lines)

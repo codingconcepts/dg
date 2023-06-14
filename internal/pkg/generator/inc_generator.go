@@ -19,6 +19,6 @@ func GenerateIncColumn(t model.Table, c model.Column, pi model.ProcessorInc, fil
 		line = append(line, formatValue(pi, pi.Start+i))
 	}
 
-	AddTable(t.Name, c.Name, line, files)
+	AddTable(t, c.Name, line, files)
 	return nil
 }

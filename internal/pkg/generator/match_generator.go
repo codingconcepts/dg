@@ -43,6 +43,6 @@ func GenerateMatchColumn(t model.Table, c model.Column, ptc model.ProcessorMatch
 		}
 	}
 
-	AddTable(t.Name, c.Name, lines, files)
+	AddTable(t, c.Name, lines, files)
 	return nil
 }

@@ -1,0 +1,20 @@
+tables:
+  - table: person
+    unique_columns: [col_a, col_b]
+    count: 10
+    columns:
+
+      - name: col_a
+        type: set
+        processor:
+          values: [a, b, c]
+      
+      - name: col_b
+        type: set
+        processor:
+          values: [d, e, f]
+      
+      - name: col_c
+        type: set
+        processor:
+          values: [g, h, i]

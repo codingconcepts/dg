@@ -15,9 +15,10 @@ type Config struct {
 
 // Table represents the instructions to create one CSV file.
 type Table struct {
-	Name    string   `yaml:"table"`
-	Count   int      `yaml:"count"`
-	Columns []Column `yaml:"columns"`
+	Name          string   `yaml:"table"`
+	Count         int      `yaml:"count"`
+	UniqueColumns []string `yaml:"unique_columns"`
+	Columns       []Column `yaml:"columns"`
 }
 
 // Column represents the instructions to populate one CSV file column.
