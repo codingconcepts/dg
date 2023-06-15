@@ -210,6 +210,19 @@ Generate a random value for the column. Here's an example:
 
 This configuration will generate a random left-padded `uint16` with a prefix of "SKU" for a column called "sku". `value` contains zero or more function placeholders that can be used to generate data. A list of available functions can be found [here](https://github.com/codingconcepts/dg#functions).
 
+##### const
+
+Provide a constant set of values for a column. Here's an example:
+
+``` yaml
+- name: options
+  type: const
+  processor:
+    values: [bed_breakfast, bed]
+```
+
+This configuration will create a column containing two rows.
+
 ##### set
 
 Select a value from a given set. Here's an example:

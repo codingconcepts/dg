@@ -2,7 +2,6 @@ package generator
 
 import (
 	"github.com/codingconcepts/dg/internal/pkg/model"
-
 	"github.com/samber/lo"
 )
 

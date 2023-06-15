@@ -1,0 +1,13 @@
+tables:
+  - name: one
+    count: 3
+    columns:
+      - name: a
+        type: const
+        processor:
+          values: [val_1, val_2, val_3]
+      
+      - name: b
+        type: const
+        processor:
+          values: [val_1, val_2, val_3]

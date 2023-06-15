@@ -108,6 +108,32 @@ func TestTranspose(t *testing.T) {
 				{"c", "f"},
 			},
 		},
+		{
+			name: "first input bigger than second",
+			input: [][]string{
+				{"a", "b", "c", "1"},
+				{"d", "e", "f"},
+			},
+			output: [][]string{
+				{"a", "d"},
+				{"b", "e"},
+				{"c", "f"},
+				{"1", ""},
+			},
+		},
+		{
+			name: "second input bigger than first",
+			input: [][]string{
+				{"a", "b", "c"},
+				{"d", "e", "f", "2"},
+			},
+			output: [][]string{
+				{"a", "d"},
+				{"b", "e"},
+				{"c", "f"},
+				{"", "2"},
+			},
+		},
 	}
 
 	for _, c := range cases {

@@ -169,6 +169,16 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 				return fmt.Errorf("running set process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
+		case "const":
+			var p model.ProcessorConst
+			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+				return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
+			}
+
+			if err := generator.GenerateConstColumn(t, col, p, files); err != nil {
+				return fmt.Errorf("running const process for %s.%s: %w", t.Name, col.Name, err)
+			}
+
 		case "inc":
 			var p model.ProcessorInc
 			if err := col.Processor.UnmarshalFunc(&p); err != nil {

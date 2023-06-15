@@ -5,7 +5,6 @@ import (
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/codingconcepts/dg/internal/pkg/random"
-
 	"github.com/samber/lo"
 )
 

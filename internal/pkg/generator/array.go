@@ -43,7 +43,11 @@ func CartesianProduct(a ...[]string) [][]string {
 
 // Transpose a multi-dimensional array.
 func Transpose(m [][]string) [][]string {
-	r := make([][]string, len(m[0]))
+	max := lo.MaxBy(m, func(a, b []string) bool {
+		return len(a) > len(b)
+	})
+
+	r := make([][]string, len(max))
 
 	for x := range r {
 		r[x] = make([]string, len(m))
