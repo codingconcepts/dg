@@ -1,6 +1,5 @@
 tables:
   - name: one
-    count: 3
     columns:
       - name: a
         type: const

@@ -21,11 +21,7 @@ func GenerateConstColumn(t model.Table, c model.Column, pc model.ProcessorConst,
 		count = t.Count
 	}
 
-	if count == 0 {
-		return fmt.Errorf("if this is a table's first column, ensure the table has a count field")
-	}
-
-	if count != len(pc.Values) {
+	if count > len(pc.Values) {
 		return fmt.Errorf("wrong number of values provided for const generator (need %d, got %d)", count, len(pc.Values))
 	}
 

@@ -80,7 +80,6 @@ func TestGenerateConstColumn(t *testing.T) {
 				},
 			},
 			values: []string{"a", "b", "c", "d", "e"},
-			expErr: fmt.Errorf("wrong number of values provided for const generator (need 3, got 5)"),
 		},
 	}
 
