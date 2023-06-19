@@ -6,17 +6,6 @@ type ProcessorTableColumn struct {
 	Column string `yaml:"column"`
 }
 
-// ProcessorGenerator provides additional context to a gen column.
-type ProcessorGenerator struct {
-	Value          string `yaml:"value"`
-	NullPercentage int    `yaml:"null_percentage"`
-	Format         string `yaml:"format"`
-}
-
-func (pg ProcessorGenerator) GetFormat() string {
-	return pg.Format
-}
-
 // ProcessorRange provides additional context to a range column.
 type ProcessorRange struct {
 	Type   string `yaml:"type"`

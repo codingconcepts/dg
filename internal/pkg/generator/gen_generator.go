@@ -8,8 +8,19 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateGenColumn generates random data for a given column.
-func GenerateGenColumn(t model.Table, c model.Column, pg model.ProcessorGenerator, files map[string]model.CSVFile) error {
+// GenGenerator provides additional context to a gen column.
+type GenGenerator struct {
+	Value          string `yaml:"value"`
+	NullPercentage int    `yaml:"null_percentage"`
+	Format         string `yaml:"format"`
+}
+
+func (g GenGenerator) GetFormat() string {
+	return g.Format
+}
+
+// Generate generates random data for a given column.
+func (pg GenGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 			return len(a) > len(b)
@@ -18,14 +29,14 @@ func GenerateGenColumn(t model.Table, c model.Column, pg model.ProcessorGenerato
 
 	var line []string
 	for i := 0; i < t.Count; i++ {
-		line = append(line, replacePlaceholders(pg))
+		line = append(line, pg.replacePlaceholders())
 	}
 
 	AddTable(t, c.Name, line, files)
 	return nil
 }
 
-func replacePlaceholders(pg model.ProcessorGenerator) string {
+func (pg GenGenerator) replacePlaceholders() string {
 	r := random.Intn(100)
 	if r < pg.NullPercentage {
 		return ""

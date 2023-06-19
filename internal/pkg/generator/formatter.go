@@ -1,4 +1,4 @@
-package model
+package generator
 
 // Formatter determines the behaviour for anything that can take a format
 // string and return another.

@@ -38,12 +38,12 @@ func add(files map[string]model.CSVFile, table string, column string, line []str
 	files[table] = foundTable
 }
 
-func formatValue(fp model.FormatterProcessor, value any) string {
+func formatValue(fp FormatterProcessor, value any) string {
 	format := fp.GetFormat()
 	if format != "" {
 		// Check if the value implements the formatter interface and use that first,
 		// otherwise, just perform a simple string format.
-		if f, ok := value.(model.Formatter); ok {
+		if f, ok := value.(Formatter); ok {
 			return f.Format(format)
 		} else {
 			return fmt.Sprintf(format, value)

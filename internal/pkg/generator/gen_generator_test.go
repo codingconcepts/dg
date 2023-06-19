@@ -58,13 +58,13 @@ func TestGenerateGenColumn(t *testing.T) {
 				Name: "col",
 			}
 
-			processor := model.ProcessorGenerator{
+			g := GenGenerator{
 				Value:  c.value,
 				Format: c.format,
 			}
 
 			files := map[string]model.CSVFile{}
-			err := GenerateGenColumn(table, column, processor, files)
+			err := g.Generate(table, column, files)
 			assert.Nil(t, err)
 			assert.True(t, c.expShapeFunc(files["table"].Lines[0][0]))
 		})

@@ -96,7 +96,7 @@ func TestFormatValue(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			formatter := model.ProcessorGenerator{Format: c.format}
+			formatter := GenGenerator{Format: c.format}
 			act := formatValue(formatter, c.value)
 
 			assert.Equal(t, c.exp, act)
