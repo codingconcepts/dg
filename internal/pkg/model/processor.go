@@ -15,16 +15,6 @@ type ProcessorRange struct {
 	Format string `yaml:"format"`
 }
 
-// ProcessorInc provides additional context to an inc column.
-type ProcessorInc struct {
-	Start  int    `yaml:"start"`
-	Format string `yaml:"format"`
-}
-
-func (pi ProcessorInc) GetFormat() string {
-	return pi.Format
-}
-
 // ProcessorMatch provides additional context to a match column.
 type ProcessorMatch struct {
 	SourceTable  string `yaml:"source_table"`

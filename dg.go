@@ -176,12 +176,11 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			}
 
 		case "inc":
-			var p model.ProcessorInc
-			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+			var g generator.IncGenerator
+			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing each process for %s: %w", col.Name, err)
 			}
-
-			if err := generator.GenerateIncColumn(t, col, p, files); err != nil {
+			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running inc process for %s.%s: %w", t.Name, col.Name, err)
 			}
 

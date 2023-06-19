@@ -55,11 +55,11 @@ func TestGenerateIncColumn(t *testing.T) {
 				Name: "id",
 			}
 
-			processor := model.ProcessorInc{
+			g := IncGenerator{
 				Start: c.start,
 			}
 
-			err := GenerateIncColumn(table, column, processor, c.files)
+			err := g.Generate(table, column, c.files)
 			assert.Nil(t, err)
 			assert.Equal(t,
 				[]string([]string{"id"}),

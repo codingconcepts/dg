@@ -5,8 +5,18 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateIncColumn generates an incrementing number value for a column.
-func GenerateIncColumn(t model.Table, c model.Column, pi model.ProcessorInc, files map[string]model.CSVFile) error {
+// IncGenerator provides additional context to an inc column.
+type IncGenerator struct {
+	Start  int    `yaml:"start"`
+	Format string `yaml:"format"`
+}
+
+func (pi IncGenerator) GetFormat() string {
+	return pi.Format
+}
+
+// Generate generates an incrementing number value for a column.
+func (pi IncGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 			return len(a) > len(b)
