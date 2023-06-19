@@ -16,7 +16,7 @@ func (pi IncGenerator) GetFormat() string {
 }
 
 // Generate generates an incrementing number value for a column.
-func (pi IncGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
+func (g IncGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 			return len(a) > len(b)
@@ -25,7 +25,7 @@ func (pi IncGenerator) Generate(t model.Table, c model.Column, files map[string]
 
 	var line []string
 	for i := 0; i < t.Count; i++ {
-		line = append(line, formatValue(pi, pi.Start+i))
+		line = append(line, formatValue(g, g.Start+i))
 	}
 
 	AddTable(t, c.Name, line, files)

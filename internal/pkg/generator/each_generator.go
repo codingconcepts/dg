@@ -8,9 +8,15 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateEachColumns looks for any each type columns for a table, and
+// EachGenerator provides additional context to an each or ref column.
+type EachGenerator struct {
+	Table  string `yaml:"table"`
+	Column string `yaml:"column"`
+}
+
+// Generate looks for any each type columns for a table, and
 // returns their Cartesian product back into the given files map.
-func GenerateEachColumns(t model.Table, files map[string]model.CSVFile) error {
+func (g EachGenerator) Generate(t model.Table, files map[string]model.CSVFile) error {
 	cols := lo.Filter(t.Columns, func(c model.Column, _ int) bool {
 		return c.Type == "each"
 	})
@@ -21,13 +27,13 @@ func GenerateEachColumns(t model.Table, files map[string]model.CSVFile) error {
 
 	var preCartesian [][]string
 	for _, col := range cols {
-		var ptc model.ProcessorTableColumn
-		if err := col.Processor.UnmarshalFunc(&ptc); err != nil {
+		var gCol EachGenerator
+		if err := col.Generator.UnmarshalFunc(&gCol); err != nil {
 			return fmt.Errorf("parsing each process for %s.%s: %w", t.Name, col.Name, err)
 		}
 
-		srcTable := files[ptc.Table]
-		srcColumn := ptc.Column
+		srcTable := files[gCol.Table]
+		srcColumn := gCol.Column
 		srcColumnIndex := lo.IndexOf(srcTable.Header, srcColumn)
 
 		preCartesian = append(preCartesian, srcTable.Lines[srcColumnIndex])

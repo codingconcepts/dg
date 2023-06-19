@@ -20,7 +20,7 @@ func (g GenGenerator) GetFormat() string {
 }
 
 // Generate generates random data for a given column.
-func (pg GenGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
+func (g GenGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 			return len(a) > len(b)
@@ -29,7 +29,7 @@ func (pg GenGenerator) Generate(t model.Table, c model.Column, files map[string]
 
 	var line []string
 	for i := 0; i < t.Count; i++ {
-		line = append(line, pg.replacePlaceholders())
+		line = append(line, g.replacePlaceholders())
 	}
 
 	AddTable(t, c.Name, line, files)

@@ -18,16 +18,16 @@ type MatchGenerator struct {
 
 // Generate matches values from a previously generated table and inserts values
 // into a new table where match is found.
-func (ptc MatchGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
-	sourceTable, ok := files[ptc.SourceTable]
+func (g MatchGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
+	sourceTable, ok := files[g.SourceTable]
 	if !ok {
-		return fmt.Errorf("missing source table %q for match lookup", ptc.SourceTable)
+		return fmt.Errorf("missing source table %q for match lookup", g.SourceTable)
 	}
 
-	sourceColumnIndex := lo.IndexOf(sourceTable.Header, ptc.SourceColumn)
+	sourceColumnIndex := lo.IndexOf(sourceTable.Header, g.SourceColumn)
 	sourceColumn := sourceTable.Lines[sourceColumnIndex]
 
-	valueColumnIndex := lo.IndexOf(sourceTable.Header, ptc.SourceValue)
+	valueColumnIndex := lo.IndexOf(sourceTable.Header, g.SourceValue)
 	valueColumn := sourceTable.Lines[valueColumnIndex]
 
 	matchTable, ok := files[t.Name]
@@ -35,10 +35,10 @@ func (ptc MatchGenerator) Generate(t model.Table, c model.Column, files map[stri
 		return fmt.Errorf("missing destination table %q for match lookup", t.Name)
 	}
 	_, matchColumnIndex, ok := lo.FindIndexOf(t.Columns, func(c model.Column) bool {
-		return c.Name == ptc.MatchColumn
+		return c.Name == g.MatchColumn
 	})
 	if !ok {
-		return fmt.Errorf("missing match column %q in current table", ptc.MatchColumn)
+		return fmt.Errorf("missing match column %q in current table", g.MatchColumn)
 	}
 	matchColumn := matchTable.Lines[matchColumnIndex]
 

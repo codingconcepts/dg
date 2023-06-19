@@ -133,7 +133,8 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 	defer tt(time.Now(), fmt.Sprintf("generated table: %s", t.Name))
 
 	// Create the Cartesian product of any each types first.
-	if err := generator.GenerateEachColumns(t, files); err != nil {
+	var g generator.EachGenerator
+	if err := g.Generate(t, files); err != nil {
 		return fmt.Errorf("generating each columns: %w", err)
 	}
 
@@ -141,7 +142,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 		switch col.Type {
 		case "ref":
 			var g generator.RefGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
@@ -150,7 +151,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 
 		case "gen":
 			var g generator.GenGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing each process for %s: %w", col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
@@ -159,7 +160,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 
 		case "set":
 			var g generator.SetGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing set process for %s.%s: %w", t.Name, col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
@@ -168,7 +169,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 
 		case "const":
 			var g generator.ConstGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
@@ -177,7 +178,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 
 		case "inc":
 			var g generator.IncGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing each process for %s: %w", col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
@@ -186,7 +187,7 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 
 		case "range":
 			var g generator.RangeGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing range process for %s: %w", col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
@@ -195,10 +196,9 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 
 		case "match":
 			var g generator.MatchGenerator
-			if err := col.Processor.UnmarshalFunc(&g); err != nil {
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing match process for %s: %w", col.Name, err)
 			}
-
 			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running match process for %s.%s: %w", t.Name, col.Name, err)
 			}

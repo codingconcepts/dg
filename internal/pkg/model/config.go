@@ -25,7 +25,7 @@ type Table struct {
 type Column struct {
 	Name      string     `yaml:"name"`
 	Type      string     `yaml:"type"`
-	Processor RawMessage `yaml:"processor"`
+	Generator RawMessage `yaml:"processor"`
 }
 
 // Input represents a data source provided by the user.

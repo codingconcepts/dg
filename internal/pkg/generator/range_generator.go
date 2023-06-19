@@ -17,7 +17,7 @@ type RangeGenerator struct {
 }
 
 // Generate generates sequential data between a given start and end range.
-func (pr RangeGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
+func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	count := len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 		return len(a) > len(b)
 	}))
@@ -26,9 +26,9 @@ func (pr RangeGenerator) Generate(t model.Table, c model.Column, files map[strin
 		count = t.Count
 	}
 
-	switch pr.Type {
+	switch g.Type {
 	case "date":
-		lines, err := generateDateSlice(pr, count)
+		lines, err := generateDateSlice(g, count)
 		if err != nil {
 			return fmt.Errorf("generating date slice: %w", err)
 		}
@@ -36,6 +36,6 @@ func (pr RangeGenerator) Generate(t model.Table, c model.Column, files map[strin
 		AddTable(t, c.Name, lines, files)
 		return nil
 	default:
-		return fmt.Errorf("%q is not a valid range type", pr.Type)
+		return fmt.Errorf("%q is not a valid range type", g.Type)
 	}
 }

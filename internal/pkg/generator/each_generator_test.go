@@ -14,7 +14,7 @@ func TestGenerateEachColumn(t *testing.T) {
 			{
 				Name: "person_id",
 				Type: "each",
-				Processor: model.ToRawMessage(t, model.ProcessorTableColumn{
+				Generator: model.ToRawMessage(t, EachGenerator{
 					Table:  "person",
 					Column: "id",
 				}),
@@ -22,7 +22,7 @@ func TestGenerateEachColumn(t *testing.T) {
 			{
 				Name: "event_id",
 				Type: "each",
-				Processor: model.ToRawMessage(t, model.ProcessorTableColumn{
+				Generator: model.ToRawMessage(t, EachGenerator{
 					Table:  "event",
 					Column: "id",
 				}),
@@ -49,7 +49,9 @@ func TestGenerateEachColumn(t *testing.T) {
 		},
 	}
 
-	err := GenerateEachColumns(table, files)
+	g := EachGenerator{}
+
+	err := g.Generate(table, files)
 	assert.Nil(t, err)
 
 	exp := model.CSVFile{
