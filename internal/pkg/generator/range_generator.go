@@ -7,8 +7,17 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateRangeColumn generates sequential data between a given start and end range.
-func GenerateRangeColumn(t model.Table, c model.Column, pr model.ProcessorRange, files map[string]model.CSVFile) error {
+// RangeGenerator provides additional context to a range column.
+type RangeGenerator struct {
+	Type   string `yaml:"type"`
+	From   string `yaml:"from"`
+	To     string `yaml:"to"`
+	Step   string `yaml:"step"`
+	Format string `yaml:"format"`
+}
+
+// Generate generates sequential data between a given start and end range.
+func (pr RangeGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	count := len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 		return len(a) > len(b)
 	}))

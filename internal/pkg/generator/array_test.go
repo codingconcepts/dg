@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -188,10 +187,11 @@ func TestGenerateDateSlice(t *testing.T) {
 			expError: `parsing from date: parsing time "2023-01-01" as "abc": cannot parse "2023-01-01" as "abc"`,
 		},
 		{
-			name:     "invalid from date",
-			count:    10,
-			from:     "abc",
-			format:   "2006-01-02",
+			name:   "invalid from date",
+			count:  10,
+			from:   "abc",
+			format: "2006-01-02",
+
 			to:       "2023-01-10",
 			expError: `parsing from date: parsing time "abc" as "2006-01-02": cannot parse "abc" as "2006"`,
 		},
@@ -215,7 +215,7 @@ func TestGenerateDateSlice(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			pr := model.ProcessorRange{
+			pr := RangeGenerator{
 				From:   c.from,
 				To:     c.to,
 				Format: c.format,

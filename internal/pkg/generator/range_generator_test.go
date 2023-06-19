@@ -95,7 +95,7 @@ func TestGenerateRangeColumn(t *testing.T) {
 				Name: "col",
 			}
 
-			processor := model.ProcessorRange{
+			g := RangeGenerator{
 				Type:   c.rtype,
 				From:   c.from,
 				To:     c.to,
@@ -105,7 +105,7 @@ func TestGenerateRangeColumn(t *testing.T) {
 
 			files := c.files
 
-			err := GenerateRangeColumn(table, column, processor, files)
+			err := g.Generate(table, column, files)
 			assert.Equal(t, c.expErr, err)
 
 			if err != nil {

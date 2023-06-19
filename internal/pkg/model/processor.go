@@ -6,15 +6,6 @@ type ProcessorTableColumn struct {
 	Column string `yaml:"column"`
 }
 
-// ProcessorRange provides additional context to a range column.
-type ProcessorRange struct {
-	Type   string `yaml:"type"`
-	From   string `yaml:"from"`
-	To     string `yaml:"to"`
-	Step   string `yaml:"step"`
-	Format string `yaml:"format"`
-}
-
 // ProcessorMatch provides additional context to a match column.
 type ProcessorMatch struct {
 	SourceTable  string `yaml:"source_table"`

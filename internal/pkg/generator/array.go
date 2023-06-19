@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/codingconcepts/dg/internal/pkg/model"
-
 	"github.com/samber/lo"
 )
 
@@ -61,7 +59,7 @@ func Transpose(m [][]string) [][]string {
 	return r
 }
 
-func generateDateSlice(pr model.ProcessorRange, count int) ([]string, error) {
+func generateDateSlice(pr RangeGenerator, count int) ([]string, error) {
 	// Validate that we have everything we need.
 	if count == 0 && pr.Step == "" {
 		return nil, fmt.Errorf("either a count or a step must be provided to a date range generator")
