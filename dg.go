@@ -140,12 +140,12 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 	for _, col := range t.Columns {
 		switch col.Type {
 		case "ref":
-			var p model.ProcessorTableColumn
-			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+			var g generator.RefGenerator
+			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
-			if err := generator.GenerateRefColumn(t, col, p, files); err != nil {
+			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running ref process for %s.%s: %w", t.Name, col.Name, err)
 			}
 

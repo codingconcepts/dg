@@ -18,7 +18,7 @@ func TestGenerateRefColumn(t *testing.T) {
 		Name: "person_id",
 	}
 
-	processor := model.ProcessorTableColumn{
+	g := RefGenerator{
 		Table:  "person",
 		Column: "id",
 	}
@@ -29,7 +29,7 @@ func TestGenerateRefColumn(t *testing.T) {
 			Lines:  [][]string{{"ce9af887-37eb-4e08-9790-4f481b0fa594"}},
 		},
 	}
-	err := GenerateRefColumn(table, column, processor, files)
+	err := g.Generate(table, column, files)
 	assert.Nil(t, err)
 	assert.Equal(t, "ce9af887-37eb-4e08-9790-4f481b0fa594", files["pet"].Lines[0][0])
 	assert.Equal(t, "ce9af887-37eb-4e08-9790-4f481b0fa594", files["pet"].Lines[0][1])
