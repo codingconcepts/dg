@@ -1,9 +1,6 @@
 package generator
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/samber/lo"
 )
 
@@ -57,37 +54,4 @@ func Transpose(m [][]string) [][]string {
 		}
 	}
 	return r
-}
-
-func generateDateSlice(pr RangeGenerator, count int) ([]string, error) {
-	// Validate that we have everything we need.
-	if count == 0 && pr.Step == "" {
-		return nil, fmt.Errorf("either a count or a step must be provided to a date range generator")
-	}
-
-	from, err := time.Parse(pr.Format, pr.From)
-	if err != nil {
-		return nil, fmt.Errorf("parsing from date: %w", err)
-	}
-
-	to, err := time.Parse(pr.Format, pr.To)
-	if err != nil {
-		return nil, fmt.Errorf("parsing to date: %w", err)
-	}
-
-	var step time.Duration
-	if count > 0 {
-		step = to.Sub(from) / time.Duration(count)
-	} else {
-		if step, err = time.ParseDuration(pr.Step); err != nil {
-			return nil, fmt.Errorf("parsing step: %w", err)
-		}
-	}
-
-	var s []string
-	for i := from; i.Before(to); i = i.Add(step) {
-		s = append(s, i.Format(pr.Format))
-	}
-
-	return s, nil
 }

@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/samber/lo"
@@ -28,7 +29,7 @@ func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string
 
 	switch g.Type {
 	case "date":
-		lines, err := generateDateSlice(g, count)
+		lines, err := g.generateDateSlice(count)
 		if err != nil {
 			return fmt.Errorf("generating date slice: %w", err)
 		}
@@ -38,4 +39,37 @@ func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string
 	default:
 		return fmt.Errorf("%q is not a valid range type", g.Type)
 	}
+}
+
+func (g RangeGenerator) generateDateSlice(count int) ([]string, error) {
+	// Validate that we have everything we need.
+	if count == 0 && g.Step == "" {
+		return nil, fmt.Errorf("either a count or a step must be provided to a date range generator")
+	}
+
+	from, err := time.Parse(g.Format, g.From)
+	if err != nil {
+		return nil, fmt.Errorf("parsing from date: %w", err)
+	}
+
+	to, err := time.Parse(g.Format, g.To)
+	if err != nil {
+		return nil, fmt.Errorf("parsing to date: %w", err)
+	}
+
+	var step time.Duration
+	if count > 0 {
+		step = to.Sub(from) / time.Duration(count)
+	} else {
+		if step, err = time.ParseDuration(g.Step); err != nil {
+			return nil, fmt.Errorf("parsing step: %w", err)
+		}
+	}
+
+	var s []string
+	for i := from; i.Before(to); i = i.Add(step) {
+		s = append(s, i.Format(g.Format))
+	}
+
+	return s, nil
 }
