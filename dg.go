@@ -144,7 +144,6 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing ref process for %s.%s: %w", t.Name, col.Name, err)
 			}
-
 			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running ref process for %s.%s: %w", t.Name, col.Name, err)
 			}
@@ -154,28 +153,25 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing each process for %s: %w", col.Name, err)
 			}
-
 			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running gen process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
 		case "set":
-			var p model.ProcessorSet
-			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+			var g generator.SetGenerator
+			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing set process for %s.%s: %w", t.Name, col.Name, err)
 			}
-
-			if err := generator.GenerateSetColumn(t, col, p, files); err != nil {
+			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running set process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
 		case "const":
-			var p model.ProcessorConst
-			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+			var g generator.ConstGenerator
+			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
 			}
-
-			if err := generator.GenerateConstColumn(t, col, p, files); err != nil {
+			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running const process for %s.%s: %w", t.Name, col.Name, err)
 			}
 

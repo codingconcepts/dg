@@ -18,14 +18,14 @@ func TestGenerateSetColumn(t *testing.T) {
 		Name: "id",
 	}
 
-	processor := model.ProcessorSet{
+	g := SetGenerator{
 		Values:  []string{"a", "b", "c"},
 		Weights: []int{0, 1, 0},
 	}
 
 	files := map[string]model.CSVFile{}
 
-	err := GenerateSetColumn(table, column, processor, files)
+	err := g.Generate(table, column, files)
 	assert.Nil(t, err)
 	assert.Equal(t,
 		[]string([]string{"id"}),

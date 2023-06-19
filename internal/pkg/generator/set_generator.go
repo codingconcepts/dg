@@ -8,8 +8,14 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateSetColumn selects between a set of values for a given table.
-func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, files map[string]model.CSVFile) error {
+// SetGenerator provides additional context to a set column.
+type SetGenerator struct {
+	Values  []string `yaml:"values"`
+	Weights []int    `yaml:"weights"`
+}
+
+// Generate selects between a set of values for a given table.
+func (ps SetGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if len(ps.Values) == 0 {
 		return fmt.Errorf("no values provided for set generator")
 	}
@@ -24,7 +30,7 @@ func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, fil
 
 	var line []string
 	if len(ps.Weights) > 0 {
-		items, err := buildWeightedItems(ps)
+		items, err := ps.buildWeightedItems()
 		if err != nil {
 			return fmt.Errorf("making weighted items collection: %w", err)
 		}
@@ -42,7 +48,7 @@ func GenerateSetColumn(t model.Table, c model.Column, ps model.ProcessorSet, fil
 	return nil
 }
 
-func buildWeightedItems(ps model.ProcessorSet) (weightedItems, error) {
+func (ps SetGenerator) buildWeightedItems() (weightedItems, error) {
 	if len(ps.Values) != len(ps.Weights) {
 		return weightedItems{}, fmt.Errorf("set values and weights need to be the same")
 	}

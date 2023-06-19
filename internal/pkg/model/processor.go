@@ -15,17 +15,6 @@ type ProcessorRange struct {
 	Format string `yaml:"format"`
 }
 
-// ProcessorSet provides additional context to a set column.
-type ProcessorSet struct {
-	Values  []string `yaml:"values"`
-	Weights []int    `yaml:"weights"`
-}
-
-// ProcessorConst provides additional context to a const column.
-type ProcessorConst struct {
-	Values []string `yaml:"values"`
-}
-
 // ProcessorInc provides additional context to an inc column.
 type ProcessorInc struct {
 	Start  int    `yaml:"start"`

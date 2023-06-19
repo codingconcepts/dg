@@ -85,7 +85,7 @@ func TestGenerateConstColumn(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			pc := model.ProcessorConst{
+			g := ConstGenerator{
 				Values: c.values,
 			}
 
@@ -98,7 +98,7 @@ func TestGenerateConstColumn(t *testing.T) {
 				Name: "col",
 			}
 
-			actErr := GenerateConstColumn(table, column, pc, c.files)
+			actErr := g.Generate(table, column, c.files)
 			assert.Equal(t, c.expErr, actErr)
 			if actErr != nil {
 				return

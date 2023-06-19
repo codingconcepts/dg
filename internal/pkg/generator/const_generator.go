@@ -7,8 +7,13 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateConstColumn generates values for a column based on a series of provided values.
-func GenerateConstColumn(t model.Table, c model.Column, pc model.ProcessorConst, files map[string]model.CSVFile) error {
+// ConstGenerator provides additional context to a const column.
+type ConstGenerator struct {
+	Values []string `yaml:"values"`
+}
+
+// Generate generates values for a column based on a series of provided values.
+func (pc ConstGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if len(pc.Values) == 0 {
 		return fmt.Errorf("no values provided for const generator")
 	}
