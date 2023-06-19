@@ -15,8 +15,8 @@ type SetGenerator struct {
 }
 
 // Generate selects between a set of values for a given table.
-func (ps SetGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
-	if len(ps.Values) == 0 {
+func (g SetGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
+	if len(g.Values) == 0 {
 		return fmt.Errorf("no values provided for set generator")
 	}
 
@@ -29,8 +29,8 @@ func (ps SetGenerator) Generate(t model.Table, c model.Column, files map[string]
 	}
 
 	var line []string
-	if len(ps.Weights) > 0 {
-		items, err := ps.buildWeightedItems()
+	if len(g.Weights) > 0 {
+		items, err := g.buildWeightedItems()
 		if err != nil {
 			return fmt.Errorf("making weighted items collection: %w", err)
 		}
@@ -40,7 +40,7 @@ func (ps SetGenerator) Generate(t model.Table, c model.Column, files map[string]
 		}
 	} else {
 		for i := 0; i < count; i++ {
-			line = append(line, ps.Values[random.Intn(len(ps.Values))])
+			line = append(line, g.Values[random.Intn(len(g.Values))])
 		}
 	}
 
@@ -48,16 +48,16 @@ func (ps SetGenerator) Generate(t model.Table, c model.Column, files map[string]
 	return nil
 }
 
-func (ps SetGenerator) buildWeightedItems() (weightedItems, error) {
-	if len(ps.Values) != len(ps.Weights) {
+func (g SetGenerator) buildWeightedItems() (weightedItems, error) {
+	if len(g.Values) != len(g.Weights) {
 		return weightedItems{}, fmt.Errorf("set values and weights need to be the same")
 	}
 
-	weightedItems := make([]weightedItem, len(ps.Values))
-	for i, v := range ps.Values {
+	weightedItems := make([]weightedItem, len(g.Values))
+	for i, v := range g.Values {
 		weightedItems = append(weightedItems, weightedItem{
 			Value:  v,
-			Weight: ps.Weights[i],
+			Weight: g.Weights[i],
 		})
 	}
 

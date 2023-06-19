@@ -198,7 +198,6 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing match process for %s: %w", col.Name, err)
 			}
-
 			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running match process for %s.%s: %w", t.Name, col.Name, err)
 			}
