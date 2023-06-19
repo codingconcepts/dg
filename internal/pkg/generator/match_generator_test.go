@@ -63,7 +63,7 @@ func TestGenerateMatchColumn(t *testing.T) {
 
 			column := c.dstColumn
 
-			processor := model.ProcessorMatch{
+			g := MatchGenerator{
 				SourceTable:  c.srcTableName,
 				SourceColumn: c.srcColumnName,
 				SourceValue:  c.srcValueName,
@@ -78,7 +78,7 @@ func TestGenerateMatchColumn(t *testing.T) {
 				files[c.dstTable.Name] = *c.dstTable
 			}
 
-			err := GenerateMatchColumn(table, column, processor, files)
+			err := g.Generate(table, column, files)
 			assert.Equal(t, c.expError, err)
 			if err != nil {
 				return

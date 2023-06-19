@@ -194,12 +194,12 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			}
 
 		case "match":
-			var p model.ProcessorMatch
-			if err := col.Processor.UnmarshalFunc(&p); err != nil {
+			var g generator.MatchGenerator
+			if err := col.Processor.UnmarshalFunc(&g); err != nil {
 				return fmt.Errorf("parsing match process for %s: %w", col.Name, err)
 			}
 
-			if err := generator.GenerateMatchColumn(t, col, p, files); err != nil {
+			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running match process for %s.%s: %w", t.Name, col.Name, err)
 			}
 		}

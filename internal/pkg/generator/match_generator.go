@@ -8,9 +8,17 @@ import (
 	"github.com/samber/lo"
 )
 
-// GenerateMatchColumn matches values from a previously generated table and inserts values
+// MatchGenerator provides additional context to a match column.
+type MatchGenerator struct {
+	SourceTable  string `yaml:"source_table"`
+	SourceColumn string `yaml:"source_column"`
+	SourceValue  string `yaml:"source_value"`
+	MatchColumn  string `yaml:"match_column"`
+}
+
+// Generate matches values from a previously generated table and inserts values
 // into a new table where match is found.
-func GenerateMatchColumn(t model.Table, c model.Column, ptc model.ProcessorMatch, files map[string]model.CSVFile) error {
+func (ptc MatchGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	sourceTable, ok := files[ptc.SourceTable]
 	if !ok {
 		return fmt.Errorf("missing source table %q for match lookup", ptc.SourceTable)
