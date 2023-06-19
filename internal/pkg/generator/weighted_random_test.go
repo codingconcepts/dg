@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,8 +38,6 @@ func TestChoose(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			items := makeWeightedItems(c.items)
-
-			rand.Seed(1)
 
 			var act []string
 			for i := 0; i < 10; i++ {
