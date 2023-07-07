@@ -17,6 +17,7 @@ type Config struct {
 type Table struct {
 	Name          string   `yaml:"name"`
 	Count         int      `yaml:"count"`
+	Supress       bool     `yaml:"supress"`
 	UniqueColumns []string `yaml:"unique_columns"`
 	Columns       []Column `yaml:"columns"`
 }

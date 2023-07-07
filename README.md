@@ -190,6 +190,7 @@ This config generates 10 random rows for the person table. Here's a breakdown of
 |name|No|Name of the table. Must be unique.|
 |unique_columns|Yes|Removes duplicates from the table based on the column names provided|
 |count|Yes|If provided, will determine the number of rows created. If not provided, will be calculated by the current table size.|
+|suppress|Yes|If `true` the table won't be written to a CSV. Useful when you need to generate intermediate tables to combine data locally.|
 |columns|No|A collection of columns to generate for the table.|
 
 #### Processors
