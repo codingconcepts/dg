@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
@@ -36,6 +37,16 @@ func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string
 
 		AddTable(t, c.Name, lines, files)
 		return nil
+
+	case "int":
+		lines, err := g.generateIntSlice(count)
+		if err != nil {
+			return fmt.Errorf("generating int slice: %w", err)
+		}
+
+		AddTable(t, c.Name, lines, files)
+		return nil
+
 	default:
 		return fmt.Errorf("%q is not a valid range type", g.Type)
 	}
@@ -69,6 +80,39 @@ func (g RangeGenerator) generateDateSlice(count int) ([]string, error) {
 	var s []string
 	for i := from; i.Before(to); i = i.Add(step) {
 		s = append(s, i.Format(g.Format))
+	}
+
+	return s, nil
+}
+
+func (g RangeGenerator) generateIntSlice(count int) ([]string, error) {
+	// Validate that we have everything we need.
+	if count == 0 && g.Step == "" {
+		return nil, fmt.Errorf("either a count or a step must be provided to an int range generator")
+	}
+
+	from, err := strconv.Atoi(g.From)
+	if err != nil {
+		return nil, fmt.Errorf("parsing from number: %w", err)
+	}
+
+	to, err := strconv.Atoi(g.To)
+	if err != nil {
+		return nil, fmt.Errorf("parsing to number: %w", err)
+	}
+
+	var step int
+	if count > 0 {
+		step = (to - from) / (count - 1)
+	} else {
+		if step, err = strconv.Atoi(g.Step); err != nil {
+			return nil, fmt.Errorf("parsing step number: %w", err)
+		}
+	}
+
+	var s []string
+	for i := from; i <= to; i += step {
+		s = append(s, strconv.Itoa(i))
 	}
 
 	return s, nil

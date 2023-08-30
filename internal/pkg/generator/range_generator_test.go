@@ -22,7 +22,7 @@ func TestGenerateRangeColumn(t *testing.T) {
 		expErr   error
 	}{
 		{
-			name: "generates range for existing table",
+			name: "generates date range for existing table",
 			files: map[string]model.CSVFile{
 				"table": {
 					Lines: [][]string{
@@ -45,7 +45,7 @@ func TestGenerateRangeColumn(t *testing.T) {
 			},
 		},
 		{
-			name:   "generates range for count",
+			name:   "generates date range for count",
 			files:  map[string]model.CSVFile{},
 			rtype:  "date",
 			count:  4,
@@ -61,7 +61,7 @@ func TestGenerateRangeColumn(t *testing.T) {
 			},
 		},
 		{
-			name:   "generates range for step",
+			name:   "generates date range for step",
 			files:  map[string]model.CSVFile{},
 			rtype:  "date",
 			from:   "2023-01-01",
@@ -80,6 +80,42 @@ func TestGenerateRangeColumn(t *testing.T) {
 				"2023-01-25",
 				"2023-01-28",
 				"2023-01-31",
+			},
+		},
+		{
+			name: "generates int range for existing table",
+			files: map[string]model.CSVFile{
+				"table": {
+					Lines: [][]string{
+						{"a"},
+						{"a", "b"},
+						{"a", "b", "c"},
+					},
+				},
+			},
+			rtype: "int",
+			count: 5,
+			from:  "1",
+			to:    "5",
+			expLines: []string{
+				"1",
+				"3",
+				"5",
+			},
+		},
+		{
+			name:  "generates int range for count",
+			files: map[string]model.CSVFile{},
+			rtype: "int",
+			count: 4,
+			from:  "10",
+			to:    "40",
+			step:  "10",
+			expLines: []string{
+				"10",
+				"20",
+				"30",
+				"40",
 			},
 		},
 	}
