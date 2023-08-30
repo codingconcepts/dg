@@ -451,6 +451,11 @@ Here's an example that generates 20 dates (one for every row found from an `each
         format: 2006-01-02
 ```
 
+The range generate currently supports the following data types:
+
+* `date` - Generate dates between a from and to value
+* `int`  - Generate integers between a from and to value
+
 ##### match
 
 Generates data by matching data in another table. In this example, we'll assume there's a CSV file for the `significant_event` input that generates the following table:
