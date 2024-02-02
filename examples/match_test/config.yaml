@@ -1,0 +1,28 @@
+inputs:
+
+  - name: market
+    type: csv
+    source:
+      file_name: market.csv
+
+tables:
+
+  - name: market_product
+    count: 10
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: market
+        type: set
+        processor:
+          values: ["us", "in"]
+      - name: region
+        type: match
+        processor:
+          source_table: market
+          source_column: code
+          source_value: region
+          match_column: market
+      

@@ -493,7 +493,7 @@ tables:
           match_column: timeline_date
 ```
 
-dg will match rows in the significant_event table with rows in the event column based on the match between `significant_event.date` and `events.date`, and take the value from the `significant_events.events` column where there's a match (otherwise leaving `NULL`). This will result in the following `events` table being generated:
+dg will match rows in the significant_event table with rows in the events table based on the match between `significant_event.date` and `events.timeline_date`, and take the value from the `significant_events.event` column where there's a match (otherwise leaving `NULL`). This will result in the following `events` table being generated:
 
 |timeline_date|timeline_event|
 |----|-----|

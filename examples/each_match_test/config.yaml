@@ -1,0 +1,46 @@
+inputs:
+
+  - name: market
+    type: csv
+    source:
+      file_name: market.csv
+
+tables:
+  
+  - name: product
+    count: 1
+    unique_columns: [name]
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: name
+        type: gen
+        processor:
+          value: ${adjective} ${adverb} ${noun}
+
+  - name: market_product
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: product_id
+        type: each
+        processor:
+          table: product
+          column: id
+      - name: market
+        type: each
+        processor:
+          table: market
+          column: code
+      - name: region
+        type: match
+        processor:
+          source_table: market
+          source_column: code
+          source_value: region
+          match_column: market
+      

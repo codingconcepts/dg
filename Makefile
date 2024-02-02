@@ -27,6 +27,12 @@ data_unique_test:
 data_const_test:
 	go run dg.go -c ./examples/const_test/config.yaml -o ./csvs/const_test
 
+data_match:
+	go run dg.go -c ./examples/match_test/config.yaml -o ./csvs/match -i import.sql
+
+data_each_match:
+	go run dg.go -c ./examples/each_match_test/config.yaml -o ./csvs/each_match -i import.sql
+
 data: data_many_to_many data_person data_range_test data_input_test data_unique_test data_const_test
 	echo "done"
 
@@ -53,9 +59,13 @@ release: validate_version
 	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\
 	tar -zcvf ./releases/dg_${VERSION}_linux.tar.gz ./dg ;\
 
-	# macos
-	GOOS=darwin go build -ldflags "-X main.version=${VERSION}" -o dg ;\
-	tar -zcvf ./releases/dg_${VERSION}_macOS.tar.gz ./dg ;\
+	# macos (arm)
+	GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${VERSION}" -o dg ;\
+	tar -zcvf ./releases/dg_${VERSION}_macos_arm64.tar.gz ./dg ;\
+
+	# macos (amd)
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${VERSION}" -o dg ;\
+	tar -zcvf ./releases/dg_${VERSION}_macos_amd64.tar.gz ./dg ;\
 
 	# windows
 	GOOS=windows go build -ldflags "-X main.version=${VERSION}" -o dg ;\

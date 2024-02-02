@@ -30,24 +30,31 @@ func (g MatchGenerator) Generate(t model.Table, c model.Column, files map[string
 	valueColumnIndex := lo.IndexOf(sourceTable.Header, g.SourceValue)
 	valueColumn := sourceTable.Lines[valueColumnIndex]
 
+	sourceMap := map[string]string{}
+	for i := 0; i < len(sourceColumn); i++ {
+		sourceMap[sourceColumn[i]] = valueColumn[i]
+	}
+
 	matchTable, ok := files[t.Name]
 	if !ok {
 		return fmt.Errorf("missing destination table %q for match lookup", t.Name)
 	}
-	_, matchColumnIndex, ok := lo.FindIndexOf(t.Columns, func(c model.Column) bool {
-		return c.Name == g.MatchColumn
+
+	// Use the match table headers to determine index, as the each processor
+	// will re-order columns.
+	_, matchColumnIndex, ok := lo.FindIndexOf(matchTable.Header, func(c string) bool {
+		return c == g.MatchColumn
 	})
 	if !ok {
 		return fmt.Errorf("missing match column %q in current table", g.MatchColumn)
 	}
+
 	matchColumn := matchTable.Lines[matchColumnIndex]
 
 	lines := make([]string, len(matchColumn))
-	for sourceI, sourceC := range sourceColumn {
-		if _, i, ok := lo.FindIndexOf(matchColumn, func(matchCol string) bool {
-			return matchCol == sourceC
-		}); ok {
-			lines[i] = valueColumn[sourceI]
+	for i, matchC := range matchColumn {
+		if sourceValue, ok := sourceMap[matchC]; ok {
+			lines[i] = sourceValue
 		}
 	}
 
