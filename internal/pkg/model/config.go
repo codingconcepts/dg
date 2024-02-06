@@ -26,6 +26,7 @@ type Table struct {
 type Column struct {
 	Name      string     `yaml:"name"`
 	Type      string     `yaml:"type"`
+	Suppress  bool       `yaml:"suppress"`
 	Generator RawMessage `yaml:"processor"`
 }
 

@@ -1,0 +1,16 @@
+tables:
+
+  - name: example
+    count: 1
+    columns:
+    
+      - name: one
+        type: gen
+        processor:
+          value: ${uint8}
+      
+      - name: two
+        suppress: true
+        type: gen
+        processor:
+          value: ${uint64}
