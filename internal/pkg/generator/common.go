@@ -11,7 +11,7 @@ func AddTable(table model.Table, column string, line []string, files map[string]
 	if _, ok := files[table.Name]; !ok {
 		files[table.Name] = model.CSVFile{
 			Name:          table.Name,
-			Output:        !table.Supress,
+			Output:        !table.Suppress,
 			UniqueColumns: table.UniqueColumns,
 		}
 	}
