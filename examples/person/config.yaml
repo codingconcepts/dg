@@ -1,13 +1,12 @@
 tables:
   # Generate data for a person table, showing off a couple of column generators.
   - name: person
-    count: 100
+    count: 100000
     columns:
       - name: id
-        type: inc
+        type: gen
         processor:
-          start: 1
-          format: "P%03d"
+          value: ${uuid}
       - name: full_name
         type: gen
         processor:
@@ -17,11 +16,6 @@ tables:
         processor:
           value: ${date}
           format: 2006-01-02
-      - name: sku
-        type: gen
-        processor:
-          value: SKU${uint16}
-          format: "%05d"
       - name: user_type
         type: set
         processor:

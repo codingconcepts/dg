@@ -170,6 +170,13 @@ CSV DATA (
 WITH skip='1', nullif = '', allow_quoted_null;
 ```
 
+If you're working with a remote database, try importing the CSV file as follows:
+
+``` sh
+psql "postgres://root@localhost:26257/defaultdb?sslmode=disable" \
+  -c "COPY person (id, full_name, date_of_birth, user_type, favourite_animal) FROM STDIN WITH DELIMITER ',' CSV HEADER NULL E''" < ./csvs/person/person.csv
+```
+
 ### Tables
 
 Table elements instruct dg to generate data for a single table and output it as a csv file. Here are the configuration options for a table:

@@ -1,10 +1,10 @@
+CREATE TYPE person_type AS ENUM ('admin', 'regular', 'read-only');
+CREATE TYPE animal_type AS ENUM ('rabbit', 'dog', 'cat');
+
 CREATE TABLE person (
-  "uuid" UUID PRIMARY KEY,
-  "string" STRING,
-  "date" DATE,
-  "bool" BOOL,
-  "int8" INT,
-  "int16" INT,
-  "int32" INT,
-  "int64" INT
+  "id" UUID PRIMARY KEY,
+  "full_name" STRING NOT NULL,
+  "date_of_birth" DATE NOT NULL,
+  "user_type" person_type NOT NULL,
+  "favourite_animal" animal_type NOT NULL
 );

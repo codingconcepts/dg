@@ -1,12 +1,9 @@
 IMPORT INTO "person"(
-    "uuid",
-    "string",
-    "date",
-    "bool",
-    "int8",
-    "int16",
-    "int32",
-    "int64"
+    "id",
+    "full_name",
+    "date_of_birth",
+    "user_type",
+    "favourite_animal"
 )
 CSV DATA (
     'http://localhost:3000/person.csv'
