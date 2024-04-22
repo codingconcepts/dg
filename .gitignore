@@ -22,3 +22,6 @@ go.work
 csvs
 releases
 scratchpad
+
+# Code editor
+.vscode/

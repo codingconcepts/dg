@@ -65,7 +65,9 @@ func main() {
 		log.Fatalf("error generating tables: %v", err)
 	}
 
-	removeSuppressedColumns(c, tt, files)
+	if err = removeSuppressedColumns(c, tt, files); err != nil {
+		log.Fatalf("error removing supressed columns: %v", err)
+	}
 
 	if err := writeFiles(*outputDir, files, tt); err != nil {
 		log.Fatalf("error writing csv files: %v", err)
@@ -208,7 +210,11 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 		}
 	}
 
-	file := files[t.Name]
+	file, ok := files[t.Name]
+	if !ok {
+		return fmt.Errorf("missing table: %q", t.Name)
+	}
+
 	if len(file.UniqueColumns) > 0 {
 		file.Lines = generator.Transpose(file.Lines)
 		file.Lines = file.Unique()
@@ -219,14 +225,17 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 	return nil
 }
 
-func removeSuppressedColumns(c model.Config, tt ui.TimerFunc, files map[string]model.CSVFile) {
+func removeSuppressedColumns(c model.Config, tt ui.TimerFunc, files map[string]model.CSVFile) error {
 	for _, table := range c.Tables {
 		for _, column := range table.Columns {
 			if !column.Suppress {
 				continue
 			}
 
-			file := files[table.Name]
+			file, ok := files[table.Name]
+			if !ok {
+				return fmt.Errorf("missing table: %q", table.Name)
+			}
 
 			// Remove suppressed column from header.
 			var headerIndex int
@@ -244,6 +253,8 @@ func removeSuppressedColumns(c model.Config, tt ui.TimerFunc, files map[string]m
 			files[table.Name] = file
 		}
 	}
+
+	return nil
 }
 
 func writeFiles(outputDir string, cfs map[string]model.CSVFile, tt ui.TimerFunc) error {

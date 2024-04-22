@@ -36,6 +36,10 @@ func (g EachGenerator) Generate(t model.Table, files map[string]model.CSVFile) e
 		srcColumn := gCol.Column
 		srcColumnIndex := lo.IndexOf(srcTable.Header, srcColumn)
 
+		if len(srcTable.Lines)-1 < srcColumnIndex {
+			return fmt.Errorf("column %q out of bounds for table %q", srcColumn, srcTable.Name)
+		}
+
 		preCartesian = append(preCartesian, srcTable.Lines[srcColumnIndex])
 	}
 

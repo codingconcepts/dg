@@ -30,11 +30,6 @@ func (g ConstGenerator) Generate(t model.Table, c model.Column, files map[string
 		return fmt.Errorf("wrong number of values provided for const generator (need %d, got %d)", count, len(g.Values))
 	}
 
-	var line []string
-	for _, value := range g.Values {
-		line = append(line, value)
-	}
-
-	AddTable(t, c.Name, line, files)
+	AddTable(t, c.Name, g.Values, files)
 	return nil
 }
