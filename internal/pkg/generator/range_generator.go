@@ -96,9 +96,13 @@ func (g RangeGenerator) generateIntSlice(count int) ([]string, error) {
 		return nil, fmt.Errorf("parsing from number: %w", err)
 	}
 
-	to, err := strconv.Atoi(g.To)
-	if err != nil {
-		return nil, fmt.Errorf("parsing to number: %w", err)
+	var to int
+	if g.To == "" {
+		to = from + count - 1
+	} else {
+		if to, err = strconv.Atoi(g.To); err != nil {
+			return nil, fmt.Errorf("parsing to number: %w", err)
+		}
 	}
 
 	var step int

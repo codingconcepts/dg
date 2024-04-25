@@ -83,6 +83,25 @@ func TestGenerateRangeColumn(t *testing.T) {
 			},
 		},
 		{
+			name:  "generates date range for count",
+			files: map[string]model.CSVFile{},
+			rtype: "int",
+			count: 10,
+			from:  "1",
+			expLines: []string{
+				"1",
+				"2",
+				"3",
+				"4",
+				"5",
+				"6",
+				"7",
+				"8",
+				"9",
+				"10",
+			},
+		},
+		{
 			name: "generates int range for existing table",
 			files: map[string]model.CSVFile{
 				"table": {
