@@ -722,3 +722,22 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 * Better support for post generation (e.g. `IMPORT`)
 * Improve code coverage
 * Write file after generating, then only keep columns that other tables need
+* Support for range without a table count (e.g. the following results in zero rows unless a count is provided)
+
+``` yaml
+- name: bet_types
+  count: 3
+  columns:
+    - name: id
+      type: range
+      processor:
+        type: int
+        from: 1
+        step: 1
+    - name: description
+      type: const
+      processor:
+        values: [Win, Lose, Draw]
+```
+
+* Default step value for int range (of 1)
