@@ -16,6 +16,7 @@ import (
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/codingconcepts/dg/internal/pkg/source"
 	"github.com/codingconcepts/dg/internal/pkg/ui"
+	"github.com/codingconcepts/dg/internal/pkg/web"
 	"github.com/samber/lo"
 )
 
@@ -31,6 +32,7 @@ func main() {
 	createImports := flag.String("i", "", "write import statements to file")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
 	versionFlag := flag.Bool("version", false, "display the current version number")
+	port := flag.Int("p", 0, "port to serve files from (omit to generate without serving)")
 	flag.Parse()
 
 	if *cpuprofile != "" {
@@ -78,6 +80,12 @@ func main() {
 			log.Fatalf("error writing import statements: %v", err)
 		}
 	}
+
+	if *port == 0 {
+		return
+	}
+
+	log.Fatal(web.Serve(*outputDir, *port))
 }
 
 func loadConfig(filename string, tt ui.TimerFunc) (model.Config, error) {
