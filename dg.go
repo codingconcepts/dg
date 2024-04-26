@@ -234,6 +234,8 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 }
 
 func removeSuppressedColumns(c model.Config, tt ui.TimerFunc, files map[string]model.CSVFile) error {
+	defer tt(time.Now(), "removed suppressed columns")
+
 	for _, table := range c.Tables {
 		for _, column := range table.Columns {
 			if !column.Suppress {
