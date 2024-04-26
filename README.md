@@ -38,8 +38,16 @@ $ dg
 Usage dg:
   -c string
         the absolute or relative path to the config file
+  -cpuprofile string
+        write cpu profile to file
+  -i string
+        write import statements to file
   -o string
         the absolute or relative path to the output dir (default ".")
+  -p int
+        port to serve files from (omit to generate without serving)
+  -version
+        display the current version number
 ```
 
 Create a config file. In the following example, we create 10,000 people, 50 events, 5 person types, and then populate the many-to-many `person_event` resolver table with 500,000 rows that represent the Cartesian product between the person and event tables:
@@ -112,7 +120,7 @@ tables:
 
 Run the application:
 ```
-$ dg -c your_config_file.yaml -o your_output_dir
+$ dg -c your_config_file.yaml -o your_output_dir -p 3000
 loaded config file                       took: 428µs
 generated table: person                  took: 41ms
 generated table: event                   took: 159µs
@@ -134,12 +142,6 @@ your_output_dir
 ├── person.csv
 ├── person_event.csv
 └── person_type.csv
-```
-
-If you're following along locally, spin up a local web server using something like python's `http.server`:
-
-```
-$ python3 -m http.server 3000 -d your_output_dir
 ```
 
 Then import the files as you would any other; here's an example insert into CockroachDB:
