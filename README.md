@@ -400,6 +400,20 @@ Generates data within a given range. Note that a number of factors determine how
 1. If a `count` is provided, step will be derived from that
 1. Otherwise, `step` will be used
 
+Here's an example that generates monotonically increasing ids for a table, starting from 1:
+
+``` yaml
+  - name: users
+    count: 10000
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+```
+
 Here's an example that generates all dates between `2020-01-01` and `2023-01-01` at daily intervals:
 
 ``` yaml
