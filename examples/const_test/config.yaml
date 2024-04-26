@@ -1,12 +1,31 @@
 tables:
   - name: one
     columns:
-      - name: a
+      - name: c1
         type: const
         processor:
-          values: [val_1, val_2, val_3]
+          values: [a, b, c]
+
+  - name: two
+    columns:
+      - name: c1
+        type: const
+        processor:
+          values: [a, b, c, d, e]
       
-      - name: b
+      - name: c2
         type: const
         processor:
-          values: [val_1, val_2, val_3]
+          values: [a, b]
+  
+  - name: three
+    columns:
+      - name: c1
+        type: const
+        processor:
+          values: [a, b]
+      
+      - name: c2
+        type: const
+        processor:
+          values: [a, b, c, d, e]

@@ -15,7 +15,7 @@ func (pi IncGenerator) GetFormat() string {
 	return pi.Format
 }
 
-// Generate generates an incrementing number value for a column.
+// Generate an incrementing number value for a column.
 func (g IncGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {

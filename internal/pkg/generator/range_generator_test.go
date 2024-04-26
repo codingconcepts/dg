@@ -137,6 +137,20 @@ func TestGenerateRangeColumn(t *testing.T) {
 				"40",
 			},
 		},
+		{
+			name:  "generates int range for const",
+			files: map[string]model.CSVFile{},
+			rtype: "int",
+			count: 4,
+			from:  "1",
+			step:  "1",
+			expLines: []string{
+				"1",
+				"2",
+				"3",
+				"4",
+			},
+		},
 	}
 
 	for _, c := range cases {

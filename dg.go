@@ -146,9 +146,15 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 	defer tt(time.Now(), fmt.Sprintf("generated table: %s", t.Name))
 
 	// Create the Cartesian product of any each types first.
-	var g generator.EachGenerator
-	if err := g.Generate(t, files); err != nil {
+	var eg generator.EachGenerator
+	if err := eg.Generate(t, files); err != nil {
 		return fmt.Errorf("generating each columns: %w", err)
+	}
+
+	// Create any const columns next.
+	var cg generator.ConstGenerator
+	if err := cg.Generate(t, files); err != nil {
+		return fmt.Errorf("generating const columns: %w", err)
 	}
 
 	for _, col := range t.Columns {
@@ -180,14 +186,14 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 				return fmt.Errorf("running set process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
-		case "const":
-			var g generator.ConstGenerator
-			if err := col.Generator.UnmarshalFunc(&g); err != nil {
-				return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
-			}
-			if err := g.Generate(t, col, files); err != nil {
-				return fmt.Errorf("running const process for %s.%s: %w", t.Name, col.Name, err)
-			}
+		// case "const":
+		// 	var g generator.ConstGenerator
+		// 	if err := col.Generator.UnmarshalFunc(&g); err != nil {
+		// 		return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
+		// 	}
+		// 	if err := g.Generate(t, col, files); err != nil {
+		// 		return fmt.Errorf("running const process for %s.%s: %w", t.Name, col.Name, err)
+		// 	}
 
 		case "inc":
 			var g generator.IncGenerator

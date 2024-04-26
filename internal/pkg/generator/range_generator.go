@@ -18,7 +18,7 @@ type RangeGenerator struct {
 	Format string `yaml:"format"`
 }
 
-// Generate generates sequential data between a given start and end range.
+// Generate sequential data between a given start and end range.
 func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	count := len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
 		return len(a) > len(b)

@@ -735,7 +735,6 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 
 ### Todos
 
-* Better support for post generation (e.g. `IMPORT`)
 * Improve code coverage
 * Write file after generating, then only keep columns that other tables need
 * Support for range without a table count (e.g. the following results in zero rows unless a count is provided)
@@ -755,5 +754,3 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
       processor:
         values: [Win, Lose, Draw]
 ```
-
-* Default step value for int range (of 1)

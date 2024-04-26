@@ -19,7 +19,7 @@ func (g GenGenerator) GetFormat() string {
 	return g.Format
 }
 
-// Generate generates random data for a given column.
+// Generate random data for a given column.
 func (g GenGenerator) Generate(t model.Table, c model.Column, files map[string]model.CSVFile) error {
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {

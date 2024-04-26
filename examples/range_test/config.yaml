@@ -1,4 +1,26 @@
 tables:
+  - name: auto_incrementing_id
+    count: 20
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+  
+  - name: bet_types
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: description
+        type: const
+        processor:
+          values: [Win, Lose, Draw]
+
   - name: previous_table
     count: 20
     columns:

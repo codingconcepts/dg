@@ -1,10 +1,10 @@
 package generator
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,6 +14,7 @@ func TestGenerateConstColumn(t *testing.T) {
 		tableCount int
 		files      map[string]model.CSVFile
 		values     []string
+		exp        []string
 		expErr     error
 	}{
 		{
@@ -34,8 +35,8 @@ func TestGenerateConstColumn(t *testing.T) {
 					},
 				},
 			},
-			values: []string{"a"},
-			expErr: fmt.Errorf("wrong number of values provided for const generator (need 3, got 1)"),
+			values: []string{"a", "b"},
+			exp:    []string{"a", "b", "a"},
 		},
 		{
 			name:       "less than current table size with table count",
@@ -50,8 +51,8 @@ func TestGenerateConstColumn(t *testing.T) {
 					},
 				},
 			},
-			values: []string{"a"},
-			expErr: fmt.Errorf("wrong number of values provided for const generator (need 3, got 1)"),
+			values: []string{"a", "b"},
+			exp:    []string{"a", "b", "a"},
 		},
 		{
 			name: "same as current table size",
@@ -92,19 +93,20 @@ func TestGenerateConstColumn(t *testing.T) {
 			table := model.Table{
 				Name:  "table",
 				Count: c.tableCount,
+				Columns: []model.Column{
+					{Name: "col", Type: "const", Generator: model.ToRawMessage(t, g)},
+				},
 			}
 
-			column := model.Column{
-				Name: "col",
-			}
-
-			actErr := g.Generate(table, column, c.files)
+			actErr := g.Generate(table, c.files)
 			assert.Equal(t, c.expErr, actErr)
 			if actErr != nil {
 				return
 			}
 
-			assert.Equal(t, c.values, c.files["table"].Lines[len(c.files["table"].Lines)-1])
+			exp := lo.Ternary(c.exp != nil, c.exp, c.values)
+
+			assert.Equal(t, exp, c.files["table"].Lines[len(c.files["table"].Lines)-1])
 		})
 	}
 }
