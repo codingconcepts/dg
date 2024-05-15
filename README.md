@@ -134,7 +134,7 @@ wrote csv: person_event                  took: 144ms
 wrote all csvs                           took: 145ms
 ```
 
-This will output:
+This will output and dg will then run an HTTP server allow you to import the files from localhost.
 
 ```
 your_output_dir
@@ -176,7 +176,7 @@ If you're working with a remote database, try importing the CSV file as follows:
 
 ``` sh
 psql "postgres://root@localhost:26257/defaultdb?sslmode=disable" \
-  -c "COPY person (id, full_name, date_of_birth, user_type, favourite_animal) FROM STDIN WITH DELIMITER ',' CSV HEADER NULL E''" < ./csvs/person/person.csv
+-c "\COPY public.person (id, full_name, date_of_birth, user_type, favourite_animal) FROM './csvs/person/person.csv' WITH DELIMITER ',' CSV HEADER NULL E''"
 ```
 
 ### Tables
