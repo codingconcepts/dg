@@ -147,7 +147,7 @@ your_output_dir
 └── person_type.csv
 ```
 
-##### [Import via HTTP]
+##### Import via HTTP
 
 Then import the files as you would any other; here's an example insert into CockroachDB:
 
@@ -177,7 +177,7 @@ CSV DATA (
 WITH skip='1', nullif = '', allow_quoted_null;
 ```
 
-##### [Import via psql]
+##### Import via psql
 
 If you're working with a remote database and have access to the `psql` binary, try importing the CSV file as follows:
 
@@ -186,7 +186,7 @@ psql "postgres://root@localhost:26257/defaultdb?sslmode=disable" \
 -c "\COPY public.person (id, full_name, date_of_birth, user_type, favourite_animal) FROM './csvs/person/person.csv' WITH DELIMITER ',' CSV HEADER NULL E''"
 ```
 
-##### [Import via nodelocal]
+##### Import via nodelocal
 
 If you're working with a remote database and have access to the `cockroach` binary, try importing the CSV file as follows:
 
