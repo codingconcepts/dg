@@ -7,6 +7,9 @@ A fast data generator that produces CSV files from generated relational data.
 ## Table of Contents
 1. [Installation](#installation)
 1. [Usage](#usage)
+    * Import via [HTTP](#import-via-http)
+    * Import via [psql](#import-via-psql)
+    * Import via [nodelocal](#import-via-nodelocal)
 1. [Tables](#tables)
     * [gen](#gen)
     * [set](#set)
@@ -144,6 +147,8 @@ your_output_dir
 └── person_type.csv
 ```
 
+##### [Import via HTTP]
+
 Then import the files as you would any other; here's an example insert into CockroachDB:
 
 ``` sql
@@ -172,12 +177,16 @@ CSV DATA (
 WITH skip='1', nullif = '', allow_quoted_null;
 ```
 
+##### [Import via psql]
+
 If you're working with a remote database and have access to the `psql` binary, try importing the CSV file as follows:
 
 ``` sh
 psql "postgres://root@localhost:26257/defaultdb?sslmode=disable" \
 -c "\COPY public.person (id, full_name, date_of_birth, user_type, favourite_animal) FROM './csvs/person/person.csv' WITH DELIMITER ',' CSV HEADER NULL E''"
 ```
+
+##### [Import via nodelocal]
 
 If you're working with a remote database and have access to the `cockroach` binary, try importing the CSV file as follows:
 
