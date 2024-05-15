@@ -172,11 +172,27 @@ CSV DATA (
 WITH skip='1', nullif = '', allow_quoted_null;
 ```
 
-If you're working with a remote database, try importing the CSV file as follows:
+If you're working with a remote database and have access to the `psql` binary, try importing the CSV file as follows:
 
 ``` sh
 psql "postgres://root@localhost:26257/defaultdb?sslmode=disable" \
 -c "\COPY public.person (id, full_name, date_of_birth, user_type, favourite_animal) FROM './csvs/person/person.csv' WITH DELIMITER ',' CSV HEADER NULL E''"
+```
+
+If you're working with a remote database and have access to the `cockroach` binary, try importing the CSV file as follows:
+
+``` sh
+cockroach nodelocal upload ./csvs/person/person.csv imports/person.csv \
+  --url "postgres://root@localhost:26257?sslmode=disable"
+```
+
+Then importing the file as follows:
+
+``` sql
+IMPORT INTO person ("id", "full_name", "date_of_birth", "user_type", "favourite_animal")
+  CSV DATA (
+    'nodelocal://1/imports/person.csv'
+  ) WITH skip = '1';
 ```
 
 ### Tables
