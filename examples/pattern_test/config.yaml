@@ -1,0 +1,13 @@
+tables:
+  # Generate data for a person table using the pattern generator.
+  - name: person
+    count: 1000
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: mobile
+        type: gen
+        processor:
+          pattern: \d{3}-\d{3}-\d{4}
