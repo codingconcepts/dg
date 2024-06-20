@@ -63,16 +63,18 @@ func main() {
 		log.Fatalf("error loading inputs: %v", err)
 	}
 
-	if err = generateTables(c, tt, files); err != nil {
-		log.Fatalf("error generating tables: %v", err)
-	}
+	for _, table := range c.Tables {
+		if err := generateTable(table, files, tt); err != nil {
+			log.Fatalf("generating csv file for %q: %v", table.Name, err)
+		}
 
-	if err = removeSuppressedColumns(c, tt, files); err != nil {
-		log.Fatalf("error removing supressed columns: %v", err)
-	}
+		if err = removeSuppressedColumns(table, tt, files); err != nil {
+			log.Fatalf("error removing supressed columns: %v", err)
+		}
 
-	if err := writeFiles(*outputDir, files, tt); err != nil {
-		log.Fatalf("error writing csv files: %v", err)
+		if err := writeFiles(*outputDir, files, tt); err != nil {
+			log.Fatalf("error writing csv files: %v", err)
+		}
 	}
 
 	if *createImports != "" {
@@ -186,14 +188,14 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 				return fmt.Errorf("running set process for %s.%s: %w", t.Name, col.Name, err)
 			}
 
-		// case "const":
-		// 	var g generator.ConstGenerator
-		// 	if err := col.Generator.UnmarshalFunc(&g); err != nil {
-		// 		return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
-		// 	}
-		// 	if err := g.Generate(t, col, files); err != nil {
-		// 		return fmt.Errorf("running const process for %s.%s: %w", t.Name, col.Name, err)
-		// 	}
+		case "const":
+			var g generator.ConstGenerator
+			if err := col.Generator.UnmarshalFunc(&g); err != nil {
+				return fmt.Errorf("parsing const process for %s.%s: %w", t.Name, col.Name, err)
+			}
+			if err := g.Generate(t, files); err != nil {
+				return fmt.Errorf("running const process for %s.%s: %w", t.Name, col.Name, err)
+			}
 
 		case "inc":
 			var g generator.IncGenerator
@@ -239,35 +241,33 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 	return nil
 }
 
-func removeSuppressedColumns(c model.Config, tt ui.TimerFunc, files map[string]model.CSVFile) error {
+func removeSuppressedColumns(table model.Table, tt ui.TimerFunc, files map[string]model.CSVFile) error {
 	defer tt(time.Now(), "removed suppressed columns")
 
-	for _, table := range c.Tables {
-		for _, column := range table.Columns {
-			if !column.Suppress {
-				continue
-			}
-
-			file, ok := files[table.Name]
-			if !ok {
-				return fmt.Errorf("missing table: %q", table.Name)
-			}
-
-			// Remove suppressed column from header.
-			var headerIndex int
-			file.Header = lo.Reject(file.Header, func(v string, i int) bool {
-				if v == column.Name {
-					headerIndex = i
-					return true
-				}
-				return false
-			})
-
-			// Remove suppressed column from lines.
-			file.Lines = append(file.Lines[:headerIndex], file.Lines[headerIndex+1:]...)
-
-			files[table.Name] = file
+	for _, column := range table.Columns {
+		if !column.Suppress {
+			continue
 		}
+
+		file, ok := files[table.Name]
+		if !ok {
+			return fmt.Errorf("missing table: %q", table.Name)
+		}
+
+		// Remove suppressed column from header.
+		var headerIndex int
+		file.Header = lo.Reject(file.Header, func(v string, i int) bool {
+			if v == column.Name {
+				headerIndex = i
+				return true
+			}
+			return false
+		})
+
+		// Remove suppressed column from lines.
+		file.Lines = append(file.Lines[:headerIndex], file.Lines[headerIndex+1:]...)
+
+		files[table.Name] = file
 	}
 
 	return nil
