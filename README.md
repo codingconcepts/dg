@@ -19,6 +19,7 @@ A fast data generator that produces CSV files from generated relational data.
    - [each](#each)
    - [range](#range)
    - [match](#match)
+   - [Experimental generators](#experimental-generators)
 1. [Inputs](#inputs)
    - [csv](#csv)
 1. [Functions](#functions)
@@ -560,6 +561,181 @@ dg will match rows in the significant_event table with rows in the events table 
 | 2023-01-11    |                |
 | 2023-01-12    | def            |
 | 2023-01-13    |                |
+
+
+#### Experimental generators
+
+The following generators where recently added and may contain bugs.
+
+##### Gen templates
+
+You canuse [go-fakeit](https://pkg.go.dev/github.com/brianvoe/gofakeit/v7) functions and types with a `template` in a `gen` generator:
+
+```yaml
+  - name: rating
+    type: gen
+    processor:
+      template: '{{starrating}}'
+  - name: comment
+    type: gen
+    processor:
+      template: '{{setence}}'
+  - name: description
+    type: gen
+    processor:
+      template: '{{LoremIpsumSentence 10}}'
+```
+
+#### cuid2
+
+Alternatively to UUIDs you cans use [`cuid2`](https://pkg.go.dev/github.com/nrednav/cuid2). For more information about Cuid2 please refer to the [original documentation](https://github.com/paralleldrive/cuid2).
+
+```yaml
+  - name: id
+    type: cuid2
+    processor:
+      length: 14
+```
+
+### expr
+
+The `expr` generator enable arithmetic/strings expressions evaluation using [govaluate](https://pkg.go.dev/github.com/vjeantet/govaluate). 
+
+```yaml
+  - name: silly_value
+    type: expr
+    processor:
+      expression: 14 + 33
+```
+
+You can `format` the output to ensure the requirements of your data shape:
+
+```yaml
+- name: formatted_value
+    type: expr
+    processor:
+      expression: 14 / 33
+      format: '%.2f'
+```
+
+Values from the same table row can be used in the expression by using the name of the column:
+
+```yaml
+  - name: installments
+    type: rand
+    processor:
+      type: int
+      low: 2
+      high: 12
+  - name: total
+    type: rand
+    processor:
+      type: float64
+      low: 1000.0
+      high: 2000.0
+      format: '%.2f'
+  - name: installment_value
+    type: expr
+    processor:
+      expression: total / installments
+      format: '%.4f'
+```
+
+You can also reference other tables values using the `match` function in an expression. The `match`function works pretty much like [match](#match) generator, expecting 4 input string parameters: `source_table`,`source_column`,`source_value` and `match_column`.
+
+```yaml
+tables:
+  - name: persons
+    count: 10
+    columns:
+      - name: person_id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: salary
+        type: rand
+        processor:
+          type: float64
+          low: 2000.0
+          high: 5000.0
+          format: '%.2f'
+  - name: loans
+    count: 10
+    columns:
+      - name: loan_id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: max_loan
+        type: expr
+        processor:
+          expression: match('persons','person_id', loan_id, 'salary') / 0.3
+          format: '%.2f'
+```
+
+#### rand
+
+`rand` generator allows generation of random values between a given range providing a `low`and `high` values (both inclusive). Supported types are `int`, `date` and `float64`. 
+
+```yaml
+  - name: age
+    type: rand
+    processor:
+      type: int
+      low: 10
+      high: 20
+  - name: enrollment_date
+    type: rand
+    processor:
+      type: date
+      low: '2010-01-01'
+      high: '2020-01-01'
+  - name: salary
+    type: rand
+    processor:
+      type: float64
+      low: 1000.0
+      high: 2000.0
+      format: '%.2f'
+```
+
+You can adjust output values providing a `format` parameter.
+
+For `date` types the `format`, when provided, is also used to parse the date values provided in `low` and `high` parameters, otherwise `'2006-01-02'` is used as default.
+
+For detailed information on date layouts (formats) check out [go/time documention](https://pkg.go.dev/time#pkg-constants).
+
+#### relative date
+
+The `relative_date` generator allows for the generation of random dates relative to a given reference date. For example, using the `low` and `high` values, you can dates within a range, such as from 7 days before to 5 days after the current date.
+
+The unit specifies the time span unit. Allowed values are `day`, `month`, and `year`.
+
+You can provide a date layout using the [Go time documentation](https://pkg.go.dev/time#pkg-constants) to `format` the output value.
+
+The `date` parameter is optional, and if not provided, the current date (`'now'`) is assumed. When format is specified, the `date` must be in the same layout.
+
+```yaml
+  - name: relative_from_now
+    type: relative_date
+    processor:
+      unit: day
+      low: -7
+      high: 7
+      format: '02/01/2006'
+  - name: relative_from_date
+    type: relative_date
+    processor:
+      date: '2020-12-25'
+      unit: year
+      low: -4
+      high: 4
+      format: '2006-01-02'
+```
 
 ### Inputs
 

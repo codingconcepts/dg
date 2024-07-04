@@ -1,0 +1,16 @@
+tables:
+  - name: persons
+    count: 10
+    columns:
+      - name: id
+        type: cuid2
+        processor:
+          length: 14
+      - name: name
+        type: gen
+        processor:
+          template: '{{FirstName}} {{LastName}}'
+      - name: email
+        type: gen
+        processor:
+          template: '{{Email}}'

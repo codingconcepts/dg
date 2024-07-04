@@ -1,0 +1,25 @@
+tables:
+  - name: transactions
+    count: 10
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: relative_from_now
+        type: relative_date
+        processor:
+          unit: days
+          low: -7
+          high: 7
+          format: '02/01/2006'
+      - name: relative_from_date
+        type: relative_date
+        processor:
+          date: '2020-12-25'
+          unit: year
+          low: -4
+          high: 4
+          format: '2006-01-02'

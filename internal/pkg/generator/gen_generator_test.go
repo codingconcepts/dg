@@ -19,6 +19,7 @@ func TestGenerateGenColumn(t *testing.T) {
 		value        string
 		pattern      string
 		format       string
+		template     string
 		expShapeFunc func(val string) bool
 	}{
 		{
@@ -56,12 +57,28 @@ func TestGenerateGenColumn(t *testing.T) {
 				return re.MatchString(val)
 			},
 		},
+		{
+			name: "template",
+			template: `Subject: {{RandomString (SliceString "Greetings" "Hello" "Hi")}}
+Dear {{LastName}},
+{{Paragraph 1 5 10 "\n\n"}}
+{{RandomString (SliceString "Warm regards" "Best wishes" "Sincerely")}}
+{{$person:=Person}}{{$contact:=Contact}}
+{{$person.FirstName}} {{$person.LastName}}
+{{$contact.Email}}
+{{$contact.Phone}}`,
+			expShapeFunc: func(val string) bool {
+				pattern := `^Subject:.(Greetings|Hello|Hi)\nDear\s\w+,\n.*\n(Warm regards|Best wishes|Sincerely)\n+\w*\s\w*\n.+@.+\n\d+$`
+				re := regexp.MustCompile(pattern)
+				return re.MatchString(val)
+			},
+		},
 	}
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			table := model.Table{
-				Name:  "table",
+				Name:  "persons",
 				Count: 1,
 			}
 
@@ -70,15 +87,25 @@ func TestGenerateGenColumn(t *testing.T) {
 			}
 
 			g := GenGenerator{
-				Value:   c.value,
-				Pattern: c.pattern,
-				Format:  c.format,
+				Value:    c.value,
+				Pattern:  c.pattern,
+				Format:   c.format,
+				Template: c.template,
 			}
 
-			files := map[string]model.CSVFile{}
+			files := map[string]model.CSVFile{
+				"persons": {
+					Name:   "persons",
+					Header: []string{"id", "name"},
+					Lines: [][]string{
+						{"1", "2", "3", "4"},
+						{"jhon", "jack", "joe"},
+					},
+				},
+			}
 			err := g.Generate(table, column, files)
 			assert.Nil(t, err)
-			assert.True(t, c.expShapeFunc(files["table"].Lines[0][0]))
+			assert.True(t, c.expShapeFunc(files["persons"].Lines[2][0]))
 		})
 	}
 }

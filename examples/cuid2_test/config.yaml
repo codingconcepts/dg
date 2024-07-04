@@ -1,0 +1,8 @@
+tables:
+  - name: things
+    count: 10
+    columns:
+      - name: id
+        type: cuid2
+        processor:
+          length: 14

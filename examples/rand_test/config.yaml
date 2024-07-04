@@ -1,0 +1,23 @@
+tables:
+  - name: person
+    count: 20
+    columns:
+      - name: age
+        type: rand
+        processor:
+          type: int
+          low: 10
+          high: 20
+      - name: enrollment_date
+        type: rand
+        processor:
+          type: date
+          low: '2010-01-01'
+          high: '2020-01-01'
+      - name: salary
+        type: rand
+        processor:
+          type: float64
+          low: 1000.0
+          high: 2000.0
+          format: '%.2f'

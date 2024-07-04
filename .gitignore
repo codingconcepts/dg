@@ -25,3 +25,4 @@ scratchpad
 
 # Code editor
 .vscode/
+__debug*
