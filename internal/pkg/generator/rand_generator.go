@@ -70,7 +70,9 @@ func (g RandGenerator) generateIntRand(count int) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing from number: %w", err)
 	}
-
+	if low > high {
+		low, high = high, low
+	}
 	var lines []string
 	for i := 0; i < count; i++ {
 		value := rand.Intn(high-low+1) + low
@@ -95,7 +97,9 @@ func (g RandGenerator) generateFloatRand(count int) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing from number: %w", err)
 	}
-
+	if low > high {
+		low, high = high, low
+	}
 	var lines []string
 	for i := 0; i < count; i++ {
 		value := rand.Float64()*(high-low+1.0) + low
@@ -125,11 +129,9 @@ func (g RandGenerator) generateDateRand(count int) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing high date: %w", err)
 	}
-
 	if low.After(high) {
-		return nil, fmt.Errorf("'low' date must be before 'high' date")
+		low, high = high, low
 	}
-
 	var lines []string
 	diff := high.Unix() - low.Unix()
 	if diff <= 0 {

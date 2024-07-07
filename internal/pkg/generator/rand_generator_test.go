@@ -77,8 +77,8 @@ func TestGeneratorRand(t *testing.T) {
 		{
 			name: "random_float64_default_format",
 			Type: "float64",
-			Low:  "1.0",
-			High: "20.1234",
+			Low:  "0.1",
+			High: "0.5",
 			testFunc: func(val string) bool {
 				_, err := strconv.ParseFloat(val, 64)
 				return err == nil
