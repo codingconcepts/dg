@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strconv"
 	"time"
@@ -65,24 +66,35 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 				return "", fmt.Errorf("error parsing days: %w", err)
 			}
 			var data time.Time
-			// check if format provided begins witrh %, if not, assume it is a layout
-			digits := regexp.MustCompile(`(\d)+`)
-			match := digits.FindAllString(g.Format, -1)
-			if len(match) >= 3 {
-				data, err = time.Parse(g.Format, args[3].(string))
+			tipo := getType(args[3])
+			switch tipo {
+			case "time.Time":
+				data = args[3].(time.Time)
+				return data.AddDate(years, months, days).Format("2006-01-02"), nil
+			case "float64":
+				float, _ := args[3].(float64)
+				sec := int64(float)
+				nano := int64((float - float64(sec)) * 1e9)
+				data = time.Unix(sec, nano)
+				return data.AddDate(years, months, days).Format("2006-01-02"), nil
+			case "int":
+				sec := int64(args[3].(int))
+				data = time.Unix(sec, 0)
+				return data.AddDate(years, months, days).Format("2006-01-02"), nil
+			case "string":
+				digits := regexp.MustCompile(`(\d)+`)
+				match := digits.FindAllString(g.Format, -1)
+				if len(match) >= 3 {
+					data, err = time.Parse(g.Format, args[3].(string))
+				} else {
+					data, err = time.Parse("2006-01-02", args[3].(string))
+				}
 				if err != nil {
 					return "", fmt.Errorf("error parsing date: %w", err)
 				}
 				return data.AddDate(years, months, days).Format(g.Format), nil
 			}
-			float, ok := args[3].(float64)
-			if !ok {
-				return "", fmt.Errorf("error parsing data: %v", args[3])
-			}
-			sec := int64(float)
-			nano := int64((float - float64(sec)) * 1e9)
-			data = time.Unix(sec, nano)
-			return data.AddDate(years, months, days).Format("2006-01-02"), nil
+			return "", fmt.Errorf("error parsing date")
 		},
 	}
 
@@ -161,4 +173,8 @@ func coerce(value string) interface{} {
 		}
 	}
 	return value
+}
+
+func getType(value interface{}) string {
+	return reflect.TypeOf(value).String()
 }
