@@ -44,7 +44,7 @@ func TestGeneratorExpMatchColumn(t *testing.T) {
 	assert.Equal(t, files["table"].Lines[1][0], "2.5")
 }
 
-func TestGeneratorColumnValues(t *testing.T) {
+func TestGeneratorExprColumnValues(t *testing.T) {
 
 	table := model.Table{
 		Name:  "table",
@@ -73,4 +73,65 @@ func TestGeneratorColumnValues(t *testing.T) {
 	err := g.Generate(table, column, files)
 	assert.Nil(t, err)
 	assert.Equal(t, files["table"].Lines[3][0], "6.0000")
+}
+
+func TestGeneratorExprDateFunctions(t *testing.T) {
+
+	table := model.Table{
+		Name:  "table",
+		Count: 1,
+	}
+
+	column := model.Column{
+		Name: "column",
+	}
+
+	files := map[string]model.CSVFile{
+		"table": {
+			Name:   "table",
+			Header: []string{"name", "rate", "months"},
+			Lines: [][]string{
+				{"jhon", "jack", "joe"},
+				{"3.00", "5.00", "2.0"},
+				{"2", "3", "5"},
+			},
+		},
+	}
+	g := ExprGenerator{
+		Expression: "add_date(1, 1, 1, '2024-12-25')",
+	}
+	err := g.Generate(table, column, files)
+	assert.Nil(t, err)
+	assert.Equal(t, files["table"].Lines[3][0], "2026-01-26")
+}
+
+func TestGeneratorExprDateFunctionsFormatted(t *testing.T) {
+
+	table := model.Table{
+		Name:  "table",
+		Count: 3,
+	}
+
+	column := model.Column{
+		Name: "column",
+	}
+
+	files := map[string]model.CSVFile{
+		"table": {
+			Name:   "table",
+			Header: []string{"name", "rate", "months"},
+			Lines: [][]string{
+				{"jhon", "jack", "joe"},
+				{"3.00", "5.00", "2.0"},
+				{"2", "3", "5"},
+			},
+		},
+	}
+	g := ExprGenerator{
+		Expression: "add_date(1, 1, 1, '2024/12/25')",
+		Format:     "2006/01/02",
+	}
+	err := g.Generate(table, column, files)
+	assert.Nil(t, err)
+	assert.Equal(t, files["table"].Lines[3][0], "2026/01/26")
 }

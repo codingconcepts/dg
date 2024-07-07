@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -47,6 +48,42 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 			}
 			return coerce(value), nil
 		},
+		"add_date": func(args ...interface{}) (interface{}, error) {
+			if len(args) != 4 {
+				return "", fmt.Errorf("add_date function expects 5 arguments: add_date(years int, months int, days int, data string)")
+			}
+			years, err := strconv.Atoi(fmt.Sprintf("%v", args[0]))
+			if err != nil {
+				return "", fmt.Errorf("error parsing years: %w", err)
+			}
+			months, err := strconv.Atoi(fmt.Sprintf("%v", args[1]))
+			if err != nil {
+				return "", fmt.Errorf("error parsing months: %w", err)
+			}
+			days, err := strconv.Atoi(fmt.Sprintf("%v", args[2]))
+			if err != nil {
+				return "", fmt.Errorf("error parsing days: %w", err)
+			}
+			var data time.Time
+			// check if format provided begins witrh %, if not, assume it is a layout
+			digits := regexp.MustCompile(`(\d)+`)
+			match := digits.FindAllString(g.Format, -1)
+			if len(match) >= 3 {
+				data, err = time.Parse(g.Format, args[3].(string))
+				if err != nil {
+					return "", fmt.Errorf("error parsing date: %w", err)
+				}
+				return data.AddDate(years, months, days).Format(g.Format), nil
+			}
+			float, ok := args[3].(float64)
+			if !ok {
+				return "", fmt.Errorf("error parsing data: %v", args[3])
+			}
+			sec := int64(float)
+			nano := int64((float - float64(sec)) * 1e9)
+			data = time.Unix(sec, nano)
+			return data.AddDate(years, months, days).Format("2006-01-02"), nil
+		},
 	}
 
 	expression, err := govaluate.NewEvaluableExpressionWithFunctions(g.Expression, functions)
@@ -66,7 +103,12 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 		if err != nil {
 			return fmt.Errorf("error evaluating expression %w", err)
 		}
-		lines = append(lines, fmt.Sprintf(g.Format, result))
+		str, ok := result.(string)
+		if ok {
+			lines = append(lines, str)
+		} else {
+			lines = append(lines, fmt.Sprintf(g.Format, result))
+		}
 	}
 	AddTable(t, c.Name, lines, files)
 	return nil
