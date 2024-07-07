@@ -433,6 +433,10 @@ Here's an example of two `each` columns:
 
 Use the `each` type if you need to reference another table and need to generate a new row for _every_ instance of the referenced column.
 
+When a `count` is defined for a table with columns specified as `each`, the Cartesian product of these columns will be iterated over until the specified row `count` is reached.
+
+If the length of the Cartesian product is greater than `count`, not every combination of the specified columns will be used. Conversely, if the length of the Cartesian product is smaller than `count`, some combinations of the specified columns will be duplicated to meet the required row `count`.
+
 ##### range
 
 Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows) will be generated in the following priority order:

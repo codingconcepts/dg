@@ -46,6 +46,17 @@ func (g EachGenerator) Generate(t model.Table, files map[string]model.CSVFile) e
 	// Compute Cartesian product of all columns.
 	cartesianColumns := Transpose(CartesianProduct(preCartesian...))
 
+	// if count is set adjust the cartesian product to fit the count
+	if t.Count > 0 {
+		newCartesianColumns := make([][]string, len(cartesianColumns))
+		size := len(cartesianColumns[0])
+		for c := range cartesianColumns {
+			for i := 0; i < t.Count; i++ {
+				newCartesianColumns[c] = append(newCartesianColumns[c], cartesianColumns[c][i%size])
+			}
+		}
+		cartesianColumns = newCartesianColumns
+	}
 	// Add the header
 	for i, col := range cartesianColumns {
 		AddTable(t, cols[i].Name, col, files)
