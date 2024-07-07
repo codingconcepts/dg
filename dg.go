@@ -230,13 +230,13 @@ func generateTable(t model.Table, files map[string]model.CSVFile, tt ui.TimerFun
 			if err := g.Generate(t, col, files); err != nil {
 				return fmt.Errorf("running cuid2 process for %s.%s: %w", t.Name, col.Name, err)
 			}
-		case "relative_date":
-			var g generator.RelativeDateGenerator
+		case "rel_date":
+			var g generator.RelDateGenerator
 			if err := col.Generator.UnmarshalFunc(&g); err != nil {
-				return fmt.Errorf("parsing relative_date process for %s: %w", col.Name, err)
+				return fmt.Errorf("parsing rel_date process for %s: %w", col.Name, err)
 			}
 			if err := g.Generate(t, col, files); err != nil {
-				return fmt.Errorf("running relative_date process for %s.%s: %w", t.Name, col.Name, err)
+				return fmt.Errorf("running rel_date process for %s.%s: %w", t.Name, col.Name, err)
 			}
 		case "rand":
 			var g generator.RandGenerator

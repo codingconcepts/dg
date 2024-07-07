@@ -3,11 +3,14 @@ package generator
 import (
 	"fmt"
 	"strings"
+	"text/template"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/codingconcepts/dg/internal/pkg/random"
 	"github.com/lucasjones/reggen"
+	"github.com/martinusso/go-docs/cnpj"
+	"github.com/martinusso/go-docs/cpf"
 	"github.com/samber/lo"
 )
 
@@ -20,6 +23,7 @@ type GenGenerator struct {
 	Template       string `yaml:"template"`
 
 	patternGenerator *reggen.Generator
+	templateOptions  gofakeit.TemplateOptions
 }
 
 func (g GenGenerator) GetFormat() string {
@@ -47,7 +51,17 @@ func (g GenGenerator) Generate(t model.Table, c model.Column, files map[string]m
 
 	if g.Template != "" {
 		var err error
-		if _, err = gofakeit.Template(g.Template, nil); err != nil {
+		g.templateOptions = gofakeit.TemplateOptions{
+			Funcs: template.FuncMap{
+				"cpf":  cpf.Generate,
+				"Cpf":  cpf.Generate,
+				"CPF":  cpf.Generate,
+				"cnpj": cnpj.Generate,
+				"Cnpj": cnpj.Generate,
+				"CNPJ": cnpj.Generate,
+			},
+		}
+		if _, err = gofakeit.Template(g.Template, &g.templateOptions); err != nil {
 			return fmt.Errorf("parsing template: %w", err)
 		}
 	}
@@ -73,7 +87,7 @@ func (pg GenGenerator) generate() string {
 	}
 
 	if pg.Template != "" {
-		value, err := gofakeit.Template(pg.Template, nil)
+		value, err := gofakeit.Template(pg.Template, &pg.templateOptions)
 		if err != nil {
 			return fmt.Errorf("generating template: %w", err).Error()
 		}

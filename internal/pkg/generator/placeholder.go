@@ -1,6 +1,10 @@
 package generator
 
-import "github.com/brianvoe/gofakeit/v7"
+import (
+	"github.com/brianvoe/gofakeit/v7"
+	"github.com/martinusso/go-docs/cnpj"
+	"github.com/martinusso/go-docs/cpf"
+)
 
 var (
 	replacements = map[string]func() any{
@@ -39,6 +43,7 @@ var (
 		"${car_type}":                    func() any { return gofakeit.CarType() },
 		"${chrome_user_agent}":           func() any { return gofakeit.ChromeUserAgent() },
 		"${city}":                        func() any { return gofakeit.City() },
+		"${cnpj}":                        func() any { return cnpj.Generate() },
 		"${color}":                       func() any { return gofakeit.Color() },
 		"${company_suffix}":              func() any { return gofakeit.CompanySuffix() },
 		"${company}":                     func() any { return gofakeit.Company() },
@@ -50,6 +55,7 @@ var (
 		"${connective}":                  func() any { return gofakeit.Connective() },
 		"${country_abr}":                 func() any { return gofakeit.CountryAbr() },
 		"${country}":                     func() any { return gofakeit.Country() },
+		"${cpf}":                         func() any { return cpf.Generate() },
 		"${credit_card_cvv}":             func() any { return gofakeit.CreditCardCvv() },
 		"${credit_card_exp}":             func() any { return gofakeit.CreditCardExp() },
 		"${credit_card_type}":            func() any { return gofakeit.CreditCardType() },

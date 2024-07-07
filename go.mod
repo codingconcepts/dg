@@ -5,13 +5,14 @@ go 1.22
 toolchain go1.22.5
 
 require (
+	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/brianvoe/gofakeit/v7 v7.0.4
 	github.com/lucasjones/reggen v0.0.0-20200904144131-37ba4fa293bb
 	github.com/nrednav/cuid2 v1.0.0
 	github.com/samber/lo v1.44.0
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
-	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/martinusso/go-docs v1.0.0
 )
 
 require (

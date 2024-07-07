@@ -9,6 +9,8 @@ import (
 
 	"github.com/codingconcepts/dg/internal/pkg/model"
 	"github.com/lucasjones/reggen"
+	"github.com/martinusso/go-docs/cnpj"
+	"github.com/martinusso/go-docs/cpf"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -55,6 +57,27 @@ func TestGenerateGenColumn(t *testing.T) {
 			expShapeFunc: func(val string) bool {
 				re := regexp.MustCompile(`[a-z]{3}-[A-Z]{3}-\d{3}`)
 				return re.MatchString(val)
+			},
+		},
+		{
+			name:  "cpf placeholder",
+			value: `${cpf}`,
+			expShapeFunc: func(val string) bool {
+				return cpf.Valid(val)
+			},
+		},
+		{
+			name:  "cnpj placeholder",
+			value: `${cnpj}`,
+			expShapeFunc: func(val string) bool {
+				return cnpj.Valid(val)
+			},
+		},
+		{
+			name:     "cnpj template",
+			template: `{{cnpj}}`,
+			expShapeFunc: func(val string) bool {
+				return cnpj.Valid(val)
 			},
 		},
 		{

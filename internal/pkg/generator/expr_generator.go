@@ -78,28 +78,16 @@ func (tc *ExpressionContext) searchTable(sourceTable, sourceColumn, sourceValue,
 		return "", fmt.Errorf("table not found: %s", sourceTable)
 	}
 
-	sourceColumnIndex := -1
-	matchColumnIndex := -1
-	for i, header := range csvFile.Header {
-		if header == sourceColumn {
-			sourceColumnIndex = i
-		}
-		if header == matchColumn {
-			matchColumnIndex = i
-		}
-		if sourceColumnIndex != -1 && matchColumnIndex != -1 {
-			break
-		}
-	}
-
+	sourceColumnIndex := lo.IndexOf(csvFile.Header, sourceColumn)
+	matchColumnIndex := lo.IndexOf(csvFile.Header, matchColumn)
 	if sourceColumnIndex == -1 || matchColumnIndex == -1 {
 		return "", fmt.Errorf("column not found: %s ou %s", sourceColumn, matchColumn)
 	}
-
-	for i, match := range csvFile.Lines[sourceColumnIndex] {
-		if match == sourceValue {
-			return csvFile.Lines[matchColumnIndex][i], nil
-		}
+	_, index, found := lo.FindIndexOf(csvFile.Lines[sourceColumnIndex], func(item string) bool {
+		return item == sourceValue
+	})
+	if found {
+		return csvFile.Lines[matchColumnIndex][index], nil
 	}
 
 	return "", fmt.Errorf("value not found for %s in column %s", sourceValue, sourceColumn)

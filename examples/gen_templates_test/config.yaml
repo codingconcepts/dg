@@ -14,3 +14,19 @@ tables:
         type: gen
         processor:
           template: '{{Email}}'
+      - name: cpf
+        type: gen
+        processor:
+          template: '{{CPF}}'
+      - name: cpnjf
+        type: gen
+        processor:
+          template: '{{CNPJ}}'
+      - name: cpf2
+        type: gen
+        processor:
+          value: ${cpf}
+      - name: cnpj2
+        type: gen
+        processor:
+          value: ${cnpj}

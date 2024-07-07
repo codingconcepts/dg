@@ -20,6 +20,11 @@ A fast data generator that produces CSV files from generated relational data.
    - [range](#range)
    - [match](#match)
    - [Experimental generators](#experimental-generators)
+    - [gen templates](#gen-templates)
+    - [cuid2](#cuid2)
+    - [expr](#expr)
+    - [rand](#rand)
+    - [rel_date](#rel_date)
 1. [Inputs](#inputs)
    - [csv](#csv)
 1. [Functions](#functions)
@@ -597,7 +602,7 @@ Alternatively to UUIDs you cans use [`cuid2`](https://pkg.go.dev/github.com/nred
       length: 14
 ```
 
-### expr
+#### expr
 
 The `expr` generator enable arithmetic/strings expressions evaluation using [govaluate](https://pkg.go.dev/github.com/vjeantet/govaluate). 
 
@@ -709,31 +714,31 @@ For `date` types the `format`, when provided, is also used to parse the date val
 
 For detailed information on date layouts (formats) check out [go/time documention](https://pkg.go.dev/time#pkg-constants).
 
-#### relative date
+#### rel_date
 
-The `relative_date` generator allows for the generation of random dates relative to a given reference date. For example, using the `low` and `high` values, you can dates within a range, such as from 7 days before to 5 days after the current date.
+The `rel_date` generator allows for the generation of random dates relative to a given reference date. For example, using the `after` and `before` values, you can dates within a range, such as from 7 days before to 5 days after the current date (values are inclusive).
 
 The unit specifies the time span unit. Allowed values are `day`, `month`, and `year`.
 
 You can provide a date layout using the [Go time documentation](https://pkg.go.dev/time#pkg-constants) to `format` the output value.
 
-The `date` parameter is optional, and if not provided, the current date (`'now'`) is assumed. When format is specified, the `date` must be in the same layout.
+The `date` parameter is optional, and if not provided, the current date (`'now'`) is assumed. When format is specified, the `date` must be in the same layout. You can reference other date values in the same row by providing the column name in `date`.
 
 ```yaml
   - name: relative_from_now
-    type: relative_date
+    type: rel_date
     processor:
       unit: day
-      low: -7
-      high: 7
+      after: -7
+      before: 7
       format: '02/01/2006'
   - name: relative_from_date
-    type: relative_date
+    type: rel_date
     processor:
       date: '2020-12-25'
       unit: year
-      low: -4
-      high: 4
+      after: -4
+      before: 4
       format: '2006-01-02'
 ```
 
@@ -793,6 +798,7 @@ This configuration will read from a file called significant_dates.csv and create
 | ${car_type}                    | string    | Passenger car mini                                                                                        |
 | ${chrome_user_agent}           | string    | Mozilla/5.0 (X11; Linux i686) AppleWebKit/5310 (KHTML, like Gecko) Chrome/37.0.882.0 Mobile Safari/5310   |
 | ${city}                        | string    | Memphis                                                                                                   |
+| ${cnpj}                        | string    | 63776262000162                                                                                            |
 | ${color}                       | string    | DarkBlue                                                                                                  |
 | ${company_suffix}              | string    | LLC                                                                                                       |
 | ${company}                     | string    | PlanetEcosystems                                                                                          |
@@ -804,6 +810,7 @@ This configuration will read from a file called significant_dates.csv and create
 | ${connective}                  | string    | for instance                                                                                              |
 | ${country_abr}                 | string    | VU                                                                                                        |
 | ${country}                     | string    | Eswatini                                                                                                  |
+| ${cpf}                         | string    | 56061433301                                                                                               |
 | ${credit_card_cvv}             | string    | 315                                                                                                       |
 | ${credit_card_exp}             | string    | 06/28                                                                                                     |
 | ${credit_card_type}            | string    | Mastercard                                                                                                |
@@ -816,7 +823,7 @@ This configuration will read from a file called significant_dates.csv and create
 | ${domain_name}                 | string    | centralb2c.net                                                                                            |
 | ${domain_suffix}               | string    | com                                                                                                       |
 | ${email}                       | string    | ethanlebsack@lynch.name                                                                                   |
-| ${emoji}                       | string    | ♻️                                                                                                        |
+| ${emoji}                       | string    | ♻️                                                                                                         |
 | ${file_extension}              | string    | csv                                                                                                       |
 | ${file_mime_type}              | string    | image/vasa                                                                                                |
 | ${firefox_user_agent}          | string    | Mozilla/5.0 (X11; Linux x86_64; rv:6.0) Gecko/1951-07-21 Firefox/37.0                                     |
@@ -941,7 +948,10 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 - [samber/lo](https://github.com/samber/lo)
 - [brianvoe/gofakeit](https://github.com/brianvoe/gofakeit)
 - [go-yaml/yaml](https://github.com/go-yaml/yaml)
-- [stretchr/testify](github.com/stretchr/testify/assert)
+- [stretchr/testify](https://github.com/stretchr/testify/assert)
+- [martinusso/go-docs](https://github.com/martinusso/go-docs)
+- [Knetic/govaluate](https://github.com/Knetic/govaluate)
+- [nrednav/cuid2 ](https://github.com/nrednav/cuid2)
 
 ### Todos
 
