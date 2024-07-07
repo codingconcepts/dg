@@ -75,7 +75,7 @@ func (g RandGenerator) generateIntRand(count int) ([]string, error) {
 	}
 	var lines []string
 	for i := 0; i < count; i++ {
-		value := rand.Intn(high-low+1) + low
+		value := rand.Intn(high-low) + low
 		if g.Format == "" {
 			g.Format = "%v"
 		}
@@ -102,7 +102,7 @@ func (g RandGenerator) generateFloatRand(count int) ([]string, error) {
 	}
 	var lines []string
 	for i := 0; i < count; i++ {
-		value := rand.Float64()*(high-low+1.0) + low
+		value := rand.Float64()*(high-low) + low
 		if g.Format == "" {
 			g.Format = "%g"
 		}
