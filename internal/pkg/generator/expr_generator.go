@@ -25,9 +25,6 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 	if g.Expression == "" {
 		return fmt.Errorf("expression cannot be empty")
 	}
-	if g.Format == "" {
-		g.Format = "%v"
-	}
 
 	if t.Count == 0 {
 		t.Count = len(lo.MaxBy(files[t.Name].Lines, func(a, b []string) bool {
@@ -70,17 +67,17 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 			switch tipo {
 			case "time.Time":
 				data = args[3].(time.Time)
-				return data.AddDate(years, months, days).Format("2006-01-02"), nil
+				return data.AddDate(years, months, days), nil
 			case "float64":
 				float, _ := args[3].(float64)
 				sec := int64(float)
 				nano := int64((float - float64(sec)) * 1e9)
 				data = time.Unix(sec, nano)
-				return data.AddDate(years, months, days).Format("2006-01-02"), nil
+				return data.AddDate(years, months, days), nil
 			case "int":
 				sec := int64(args[3].(int))
 				data = time.Unix(sec, 0)
-				return data.AddDate(years, months, days).Format("2006-01-02"), nil
+				return data.AddDate(years, months, days), nil
 			case "string":
 				digits := regexp.MustCompile(`(\d)+`)
 				match := digits.FindAllString(g.Format, -1)
@@ -92,7 +89,7 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 				if err != nil {
 					return "", fmt.Errorf("error parsing date: %w", err)
 				}
-				return data.AddDate(years, months, days).Format(g.Format), nil
+				return data.AddDate(years, months, days), nil
 			}
 			return "", fmt.Errorf("error parsing date")
 		},
@@ -115,11 +112,31 @@ func (g ExprGenerator) Generate(t model.Table, c model.Column, files map[string]
 		if err != nil {
 			return fmt.Errorf("error evaluating expression %w", err)
 		}
-		str, ok := result.(string)
-		if ok {
-			lines = append(lines, str)
-		} else {
-			lines = append(lines, fmt.Sprintf(g.Format, result))
+		switch getType(result) {
+		case "time.Time":
+			if g.Format == "" {
+				g.Format = "2006-01-02"
+			}
+			lines = append(lines, result.(time.Time).Format(g.Format))
+		case "float64":
+			if g.Format == "" {
+				g.Format = "%g"
+			}
+			lines = append(lines, fmt.Sprintf(g.Format, result.(float64)))
+		case "int":
+			if g.Format == "" {
+				g.Format = "%d"
+			}
+			lines = append(lines, fmt.Sprintf(g.Format, result.(int)))
+		case "bool":
+			if g.Format == "" {
+				g.Format = "%t"
+			}
+			lines = append(lines, fmt.Sprintf(g.Format, result.(bool)))
+		case "string":
+			lines = append(lines, result.(string))
+		default:
+			lines = append(lines, fmt.Sprintf("%v", result))
 		}
 	}
 	AddTable(t, c.Name, lines, files)
