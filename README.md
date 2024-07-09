@@ -21,6 +21,7 @@ A fast data generator that produces CSV files from generated relational data.
    - [match](#match)
    - [Experimental generators](#experimental-generators)
     - [gen templates](#gen-templates)
+    - [range partitioned tables](#range-partitioned-tables)
     - [cuid2](#cuid2)
     - [expr](#expr)
     - [rand](#rand)
@@ -572,11 +573,11 @@ dg will match rows in the significant_event table with rows in the events table 
 | 2023-01-13    |                |
 
 
-#### Experimental generators
+### Experimental generators
 
 The following generators where recently added and may contain bugs.
 
-##### Gen templates
+#### gen templates
 
 You canuse [go-fakeit](https://pkg.go.dev/github.com/brianvoe/gofakeit/v7) functions and types with a `template` in a `gen` generator:
 
@@ -593,6 +594,31 @@ You canuse [go-fakeit](https://pkg.go.dev/github.com/brianvoe/gofakeit/v7) funct
     type: gen
     processor:
       template: '{{LoremIpsumSentence 10}}'
+```
+
+#### range partitioned tables
+
+You can declare an optional `table` attribute to have the range generator continue `from` the last value of the source table, allowing the creation of partitioned files. The generator does not have access to the source table definition, so it is important to ensure that all column definitions are the same in both tables, with the exception of the `table` and `from` attributes in the secondary table.
+
+```yaml
+tables:
+  - name: events.1
+    count: 10
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+  - name: events.2
+    columns:
+      - name: id
+        type: range
+        processor:
+          source_table: events.1
+          type: int
+          step: 1
 ```
 
 #### cuid2

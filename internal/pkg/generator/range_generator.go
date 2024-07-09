@@ -11,6 +11,7 @@ import (
 
 // RangeGenerator provides additional context to a range column.
 type RangeGenerator struct {
+	Table  string `yaml:"table"`
 	Type   string `yaml:"type"`
 	From   string `yaml:"from"`
 	To     string `yaml:"to"`
@@ -28,13 +29,32 @@ func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string
 		count = t.Count
 	}
 
+	if g.Table != "" {
+		csvFile, ok := files[g.Table]
+		if !ok {
+			return fmt.Errorf("table %q not found", g.Table)
+		}
+		columnIndex := lo.IndexOf(csvFile.Header, c.Name)
+		if columnIndex == -1 {
+			return fmt.Errorf("column %q not found in table %q", c.Name, g.Table)
+		}
+		line := csvFile.Lines[columnIndex]
+		if len(line) == 0 {
+			return fmt.Errorf("no data in column %q of table %q", c.Name, g.Table)
+		}
+		g.From = line[len(line)-1]
+		count += 1
+	}
+
 	switch g.Type {
 	case "date":
 		lines, err := g.generateDateSlice(count)
 		if err != nil {
 			return fmt.Errorf("generating date slice: %w", err)
 		}
-
+		if g.Table != "" && len(lines) > 0 {
+			lines = lines[1:]
+		}
 		AddTable(t, c.Name, lines, files)
 		return nil
 
@@ -43,7 +63,9 @@ func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string
 		if err != nil {
 			return fmt.Errorf("generating int slice: %w", err)
 		}
-
+		if g.Table != "" && len(lines) > 0 {
+			lines = lines[1:]
+		}
 		AddTable(t, c.Name, lines, files)
 		return nil
 
