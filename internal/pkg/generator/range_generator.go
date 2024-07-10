@@ -39,10 +39,11 @@ func (g RangeGenerator) Generate(t model.Table, c model.Column, files map[string
 			return fmt.Errorf("column %q not found in table %q", c.Name, g.Table)
 		}
 		line := csvFile.Lines[columnIndex]
-		if len(line) == 0 {
+		size := len(line)
+		if size == 0 {
 			return fmt.Errorf("no data in column %q of table %q", c.Name, g.Table)
 		}
-		g.From = line[len(line)-1]
+		g.From = line[size-1]
 		count += 1
 	}
 

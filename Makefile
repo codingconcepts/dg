@@ -75,7 +75,7 @@ profile:
 
 release: validate_version
 	# linux
-	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\
+	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${VERSION}" -o dg ;\
 	tar -zcvf ./releases/dg_${VERSION}_linux.tar.gz ./dg ;\
 
 	# macos (arm)
