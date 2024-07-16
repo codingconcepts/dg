@@ -58,6 +58,9 @@ profile:
 	go tool pprof -http=:8080 profile.out
 
 release: validate_version
+	# make sure the folder exists
+	mkdir -p ./releases
+
 	# linux
 	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\
 	tar -zcvf ./releases/dg_${VERSION}_linux.tar.gz ./dg ;\
