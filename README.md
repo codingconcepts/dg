@@ -19,6 +19,13 @@ A fast data generator that produces CSV files from generated relational data.
    - [each](#each)
    - [range](#range)
    - [match](#match)
+   - [Experimental generators](#experimental-generators)
+    - [gen templates](#gen-templates)
+    - [range partitioned tables](#range-partitioned-tables)
+    - [cuid2](#cuid2)
+    - [expr](#expr)
+    - [rand](#rand)
+    - [rel_date](#rel_date)
 1. [Inputs](#inputs)
    - [csv](#csv)
 1. [Functions](#functions)
@@ -427,6 +434,10 @@ Here's an example of two `each` columns:
 
 Use the `each` type if you need to reference another table and need to generate a new row for _every_ instance of the referenced column.
 
+When a `count` is defined for a table with columns specified as `each`, the Cartesian product of these columns will be iterated over until the specified row `count` is reached.
+
+If the length of the Cartesian product is greater than `count`, not every combination of the specified columns will be used. Conversely, if the length of the Cartesian product is smaller than `count`, some combinations of the specified columns will be duplicated to meet the required row `count`.
+
 ##### range
 
 Generates data within a given range. Note that a number of factors determine how this generator will behave. The step (and hence, number of rows) will be generated in the following priority order:
@@ -561,6 +572,206 @@ dg will match rows in the significant_event table with rows in the events table 
 | 2023-01-12    | def            |
 | 2023-01-13    |                |
 
+
+### Experimental generators
+
+The following generators where recently added and may contain bugs.
+
+#### gen templates
+
+You canuse [go-fakeit](https://pkg.go.dev/github.com/brianvoe/gofakeit/v7) functions and types with a `template` in a `gen` generator:
+
+```yaml
+  - name: rating
+    type: gen
+    processor:
+      template: '{{starrating}}'
+  - name: comment
+    type: gen
+    processor:
+      template: '{{setence}}'
+  - name: description
+    type: gen
+    processor:
+      template: '{{LoremIpsumSentence 10}}'
+```
+
+#### range partitioned tables
+
+You can declare an optional `table` attribute to have the range generator continue `from` the last value of the source table, allowing the creation of partitioned files. The generator does not have access to the source table definition, so it is important to ensure that all column definitions are the same in both tables, with the exception of the `table` and `from` attributes in the secondary table.
+
+```yaml
+tables:
+  - name: events.1
+    count: 10
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+  - name: events.2
+    columns:
+      - name: id
+        type: range
+        processor:
+          table: events.1
+          type: int
+          step: 1
+```
+
+#### cuid2
+
+Alternatively to UUIDs you cans use [`cuid2`](https://pkg.go.dev/github.com/nrednav/cuid2). For more information about Cuid2 please refer to the [original documentation](https://github.com/paralleldrive/cuid2).
+
+```yaml
+  - name: id
+    type: cuid2
+    processor:
+      length: 14
+```
+
+#### expr
+
+The `expr` generator enable arithmetic/strings expressions evaluation using [govaluate](https://pkg.go.dev/github.com/vjeantet/govaluate). 
+
+```yaml
+  - name: silly_value
+    type: expr
+    processor:
+      expression: 14 + 33
+```
+
+You can `format` the output to ensure the requirements of your data shape:
+
+```yaml
+- name: formatted_value
+    type: expr
+    processor:
+      expression: 14 / 33
+      format: '%.2f'
+```
+
+Values from the same table row can be used in the expression by using the name of the column:
+
+```yaml
+  - name: installments
+    type: rand
+    processor:
+      type: int
+      low: 2
+      high: 12
+  - name: total
+    type: rand
+    processor:
+      type: float64
+      low: 1000.0
+      high: 2000.0
+      format: '%.2f'
+  - name: installment_value
+    type: expr
+    processor:
+      expression: total / installments
+      format: '%.4f'
+```
+
+You can also reference other tables values using the `match` function in an expression. The `match`function works pretty much like [match](#match) generator, expecting 4 input string parameters: `source_table`,`source_column`,`source_value` and `match_column`.
+
+```yaml
+tables:
+  - name: persons
+    count: 10
+    columns:
+      - name: person_id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: salary
+        type: rand
+        processor:
+          type: float64
+          low: 2000.0
+          high: 5000.0
+          format: '%.2f'
+  - name: loans
+    count: 10
+    columns:
+      - name: loan_id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: max_loan
+        type: expr
+        processor:
+          expression: match('persons','person_id', loan_id, 'salary') / 0.3
+          format: '%.2f'
+```
+
+#### rand
+
+`rand` generator allows generation of random values between a given range providing a `low`and `high` values (both inclusive). Supported types are `int`, `date` and `float64`. 
+
+```yaml
+  - name: age
+    type: rand
+    processor:
+      type: int
+      low: 10
+      high: 20
+  - name: enrollment_date
+    type: rand
+    processor:
+      type: date
+      low: '2010-01-01'
+      high: '2020-01-01'
+  - name: salary
+    type: rand
+    processor:
+      type: float64
+      low: 1000.0
+      high: 2000.0
+      format: '%.2f'
+```
+
+You can adjust output values providing a `format` parameter.
+
+For `date` types the `format`, when provided, is also used to parse the date values provided in `low` and `high` parameters, otherwise `'2006-01-02'` is used as default.
+
+For detailed information on date layouts (formats) check out [go/time documention](https://pkg.go.dev/time#pkg-constants).
+
+#### rel_date
+
+The `rel_date` generator allows for the generation of random dates relative to a given reference date. For example, using the `after` and `before` values, you can dates within a range, such as from 7 days before to 5 days after the current date (values are inclusive).
+
+The unit specifies the time span unit. Allowed values are `day`, `month`, and `year`.
+
+You can provide a date layout using the [Go time documentation](https://pkg.go.dev/time#pkg-constants) to `format` the output value.
+
+The `date` parameter is optional, and if not provided, the current date (`'now'`) is assumed. When format is specified, the `date` must be in the same layout. You can reference other date values in the same row by providing the column name in `date`.
+
+```yaml
+  - name: relative_from_now
+    type: rel_date
+    processor:
+      unit: day
+      after: -7
+      before: 7
+      format: '02/01/2006'
+  - name: relative_from_date
+    type: rel_date
+    processor:
+      date: '2020-12-25'
+      unit: year
+      after: -4
+      before: 4
+      format: '2006-01-02'
+```
+
 ### Inputs
 
 dg takes its configuration from a config file that is parsed in the form of an object containing arrays of objects; `tables` and `inputs`. Each object in the `inputs` array represents a data source from which a table can be created. Tables created via inputs will not result in output CSVs.
@@ -617,6 +828,7 @@ This configuration will read from a file called significant_dates.csv and create
 | ${car_type}                    | string    | Passenger car mini                                                                                        |
 | ${chrome_user_agent}           | string    | Mozilla/5.0 (X11; Linux i686) AppleWebKit/5310 (KHTML, like Gecko) Chrome/37.0.882.0 Mobile Safari/5310   |
 | ${city}                        | string    | Memphis                                                                                                   |
+| ${cnpj}                        | string    | 63776262000162                                                                                            |
 | ${color}                       | string    | DarkBlue                                                                                                  |
 | ${company_suffix}              | string    | LLC                                                                                                       |
 | ${company}                     | string    | PlanetEcosystems                                                                                          |
@@ -628,6 +840,7 @@ This configuration will read from a file called significant_dates.csv and create
 | ${connective}                  | string    | for instance                                                                                              |
 | ${country_abr}                 | string    | VU                                                                                                        |
 | ${country}                     | string    | Eswatini                                                                                                  |
+| ${cpf}                         | string    | 56061433301                                                                                               |
 | ${credit_card_cvv}             | string    | 315                                                                                                       |
 | ${credit_card_exp}             | string    | 06/28                                                                                                     |
 | ${credit_card_type}            | string    | Mastercard                                                                                                |
@@ -640,7 +853,7 @@ This configuration will read from a file called significant_dates.csv and create
 | ${domain_name}                 | string    | centralb2c.net                                                                                            |
 | ${domain_suffix}               | string    | com                                                                                                       |
 | ${email}                       | string    | ethanlebsack@lynch.name                                                                                   |
-| ${emoji}                       | string    | ♻️                                                                                                        |
+| ${emoji}                       | string    | ♻️                                                                                                         |
 | ${file_extension}              | string    | csv                                                                                                       |
 | ${file_mime_type}              | string    | image/vasa                                                                                                |
 | ${firefox_user_agent}          | string    | Mozilla/5.0 (X11; Linux x86_64; rv:6.0) Gecko/1951-07-21 Firefox/37.0                                     |
@@ -765,7 +978,10 @@ Thanks to the maintainers of the following fantastic packages, whose code this t
 - [samber/lo](https://github.com/samber/lo)
 - [brianvoe/gofakeit](https://github.com/brianvoe/gofakeit)
 - [go-yaml/yaml](https://github.com/go-yaml/yaml)
-- [stretchr/testify](github.com/stretchr/testify/assert)
+- [stretchr/testify](https://github.com/stretchr/testify/assert)
+- [martinusso/go-docs](https://github.com/martinusso/go-docs)
+- [Knetic/govaluate](https://github.com/Knetic/govaluate)
+- [nrednav/cuid2 ](https://github.com/nrednav/cuid2)
 
 ### Todos
 

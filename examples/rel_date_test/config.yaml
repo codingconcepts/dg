@@ -1,0 +1,33 @@
+tables:
+  - name: transactions
+    count: 10
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: relative_from_now
+        type: rel_date
+        processor:
+          unit: days
+          after: -7
+          before: 7
+          format: '02/01/2006'
+      - name: relative_from_date
+        type: rel_date
+        processor:
+          date: '2020-12-25'
+          unit: year
+          after: -4
+          before: 4
+          format: '2006-01-02'
+      - name: relative_from_column
+        type: rel_date
+        processor:
+          date: 'relative_from_date'
+          unit: year
+          after: 4
+          before: 4
+          format: '2006-01-02'

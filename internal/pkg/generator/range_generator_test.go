@@ -275,3 +275,74 @@ func TestGenerateDateSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerateFromTable(t *testing.T) {
+	cases := []struct {
+		name         string
+		column       string
+		ctype        string
+		count        int
+		format       string
+		source_table string
+		to           string
+		step         string
+		expLines     []string
+	}{
+		{
+			name:         "generates int from source_table record",
+			column:       "id",
+			ctype:        "int",
+			source_table: "table.1",
+			step:         "1",
+			count:        5,
+			expLines:     []string{"4", "5", "6", "7", "8"},
+		},
+		{
+			name:         "generates dates from source_table record",
+			column:       "dates",
+			ctype:        "date",
+			source_table: "table.1",
+			count:        5,
+			step:         "24h",
+			format:       "2006-01-02",
+			to:           "2023-01-10",
+			expLines: []string{
+				"2023-01-04", "2023-01-05", "2023-01-06", "2023-01-07", "2023-01-08",
+			},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			table := model.Table{
+				Name:  "table.2",
+				Count: c.count,
+			}
+
+			column := model.Column{
+				Name: c.column,
+			}
+
+			g := RangeGenerator{
+				Type:   c.ctype,
+				Table:  c.source_table,
+				To:     c.to,
+				Format: c.format,
+				Step:   c.step,
+			}
+
+			files := map[string]model.CSVFile{
+				"table.1": {
+					Name:   "table.1",
+					Header: []string{"id", "dates"},
+					Lines: [][]string{
+						{"1", "2", "3"},
+						{"2023-01-01", "2023-01-02", "2023-01-03"},
+					},
+				},
+			}
+			error := g.Generate(table, column, files)
+			assert.Nil(t, error)
+			assert.Equal(t, c.expLines, files["table.2"].Lines[len(files["table.2"].Lines)-1])
+		})
+	}
+}

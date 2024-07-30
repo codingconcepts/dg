@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/samber/lo"
 )
 
@@ -28,7 +28,7 @@ func makeWeightedItems(items []weightedItem) weightedItems {
 }
 
 func (wi weightedItems) choose() string {
-	randomWeight := gofakeit.IntRange(1, wi.totalWeight)
+	randomWeight := gofakeit.RandomInt([]int{1, wi.totalWeight})
 	for _, i := range wi.items {
 		randomWeight -= i.Weight
 		if randomWeight <= 0 {

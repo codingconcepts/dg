@@ -1,0 +1,53 @@
+tables:
+  - name: persons
+    count: 10
+    columns:
+      - name: person_id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: email
+        type: gen
+        processor:
+          template: '{{Email}}'
+      - name: salary
+        type: rand
+        processor:
+          type: float64
+          low: 2000.0
+          high: 5000.0
+          format: '%.2f'
+  - name: billing
+    count: 10
+    columns:
+      - name: billing_id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: installments
+        type: rand
+        processor:
+          type: int
+          low: 2
+          high: 12
+      - name: total
+        type: rand
+        processor:
+          type: float64
+          low: 1000.0
+          high: 2000.0
+          format: '%.2f'
+      - name: installment_value
+        type: expr
+        processor:
+          expression: total / installments
+          format: '%.4f'
+      - name: max_loan
+        type: expr
+        processor:
+          expression: match('persons','person_id', billing_id, 'salary') / 0.3
+          format: '%.2f'

@@ -36,7 +36,23 @@ data_each_match:
 data_pattern:
 	go run dg.go -c ./examples/pattern_test/config.yaml -o ./csvs/pattern_test -i import.sql
 
-data: data_many_to_many data_person data_range_test data_input_test data_unique_test data_const_test
+data_cuid2:
+	go run dg.go -c ./examples/cuid2_test/config.yaml -o ./csvs/cuid2_test -i import.sql
+
+data_template:
+	go run dg.go -c ./examples/gen_templates_test/config.yaml -o ./csvs/gen_templates_test -i import.sql
+
+data_rel_date:
+	go run dg.go -c ./examples/rel_date_test/config.yaml -o ./csvs/rel_date_test -i import.sql
+
+data_rand:
+	go run dg.go -c ./examples/rand_test/config.yaml -o ./csvs/rand_test -i import.sql
+
+data_expr:
+	go run dg.go -c ./examples/expr_test/config.yaml -o ./csvs/expr_test -i import.sql
+
+data: data_many_to_many data_person data_range_test data_input_test data_unique_test data_const_test \
+	data_match data_each_match data_pattern data_cuid2 data_template data_rel_date data_rand data_expr
 	echo "done"
 
 file_server:
@@ -62,7 +78,7 @@ release: validate_version
 	mkdir -p ./releases
 
 	# linux
-	GOOS=linux go build -ldflags "-X main.version=${VERSION}" -o dg ;\
+	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${VERSION}" -o dg ;\
 	tar -zcvf ./releases/dg_${VERSION}_linux.tar.gz ./dg ;\
 
 	# macos (arm)

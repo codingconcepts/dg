@@ -1,6 +1,10 @@
 package generator
 
-import "github.com/brianvoe/gofakeit/v6"
+import (
+	"github.com/brianvoe/gofakeit/v7"
+	"github.com/martinusso/go-docs/cnpj"
+	"github.com/martinusso/go-docs/cpf"
+)
 
 var (
 	replacements = map[string]func() any{
@@ -39,6 +43,7 @@ var (
 		"${car_type}":                    func() any { return gofakeit.CarType() },
 		"${chrome_user_agent}":           func() any { return gofakeit.ChromeUserAgent() },
 		"${city}":                        func() any { return gofakeit.City() },
+		"${cnpj}":                        func() any { return cnpj.Generate() },
 		"${color}":                       func() any { return gofakeit.Color() },
 		"${company_suffix}":              func() any { return gofakeit.CompanySuffix() },
 		"${company}":                     func() any { return gofakeit.Company() },
@@ -50,6 +55,7 @@ var (
 		"${connective}":                  func() any { return gofakeit.Connective() },
 		"${country_abr}":                 func() any { return gofakeit.CountryAbr() },
 		"${country}":                     func() any { return gofakeit.Country() },
+		"${cpf}":                         func() any { return cpf.Generate() },
 		"${credit_card_cvv}":             func() any { return gofakeit.CreditCardCvv() },
 		"${credit_card_exp}":             func() any { return gofakeit.CreditCardExp() },
 		"${credit_card_type}":            func() any { return gofakeit.CreditCardType() },
@@ -150,15 +156,15 @@ var (
 		"${time_zone_offset}":            func() any { return gofakeit.TimeZoneOffset() },
 		"${time_zone_region}":            func() any { return gofakeit.TimeZoneRegion() },
 		"${time_zone}":                   func() any { return gofakeit.TimeZone() },
-		"${uint128_hex}":                 func() any { return gofakeit.HexUint128() },
-		"${uint16_hex}":                  func() any { return gofakeit.HexUint16() },
+		"${uint128_hex}":                 func() any { return gofakeit.HexUint(16) },
+		"${uint16_hex}":                  func() any { return gofakeit.HexUint(2) },
 		"${uint16}":                      func() any { return gofakeit.Uint16() },
-		"${uint256_hex}":                 func() any { return gofakeit.HexUint256() },
-		"${uint32_hex}":                  func() any { return gofakeit.HexUint32() },
+		"${uint256_hex}":                 func() any { return gofakeit.HexUint(32) },
+		"${uint32_hex}":                  func() any { return gofakeit.HexUint(4) },
 		"${uint32}":                      func() any { return gofakeit.Uint32() },
-		"${uint64_hex}":                  func() any { return gofakeit.HexUint64() },
+		"${uint64_hex}":                  func() any { return gofakeit.HexUint(8) },
 		"${uint64}":                      func() any { return gofakeit.Uint64() },
-		"${uint8_hex}":                   func() any { return gofakeit.HexUint8() },
+		"${uint8_hex}":                   func() any { return gofakeit.HexUint(1) },
 		"${uint8}":                       func() any { return gofakeit.Uint8() },
 		"${url}":                         func() any { return gofakeit.URL() },
 		"${user_agent}":                  func() any { return gofakeit.UserAgent() },

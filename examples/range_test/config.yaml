@@ -68,3 +68,35 @@ tables:
           to: 2023-01-01
           format: 2006-01-02
           step: 730h    # Ignored due to count value.
+
+  - name: table.1
+    count: 20
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+  - name: table.2
+    count: 10
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          table: table.1
+          step: 1
+  # when using a each generator, the count row is not required
+  - name: table.3
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          table: table.2
+          step: 1
+      - name: name
+        type: each
+        processor:
+          table: count_test
+          column: should_have_10

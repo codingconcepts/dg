@@ -29,3 +29,7 @@ scratchpad
 
 .idea
 *.iml
+
+# temporary files/folders created during debugging
+__debug*
+.debug
