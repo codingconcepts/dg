@@ -616,7 +616,7 @@ tables:
       - name: id
         type: range
         processor:
-          source_table: events.1
+          table: events.1
           type: int
           step: 1
 ```
