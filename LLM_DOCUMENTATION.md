@@ -1,0 +1,955 @@
+## Usage
+
+```
+$ dg
+Usage dg:
+  -c string
+        the absolute or relative path to the config file
+  -cpuprofile string
+        write cpu profile to file
+  -i string
+        write import statements to file
+  -o string
+        the absolute or relative path to the output dir (default ".")
+  -p int
+        port to serve files from (omit to generate without serving)
+  -version
+        display the current version number
+```
+
+Create a config file. In the following example, we create 10,000 people, 50 events, 5 person types, and then populate the many-to-many `person_event` resolver table with 500,000 rows that represent the Cartesian product between the person and event tables:
+
+```yaml
+tables:
+  - name: person
+    count: 10000
+    columns:
+      # Generate a random UUID for each person
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+  - name: event
+    count: 50
+    columns:
+      # Generate a random UUID for each event
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+  - name: person_type
+    count: 5
+    columns:
+      # Generate a random UUID for each person_type
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+      # Generate a random 16 bit number and left-pad it to 5 digits
+      - name: name
+        type: gen
+        processor:
+          value: ${uint16}
+          format: "%05d"
+
+  - name: person_event
+    columns:
+      # Generate a random UUID for each person_event
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+      # Select a random id from the person_type table
+      - name: person_type
+        type: ref
+        processor:
+          table: person_type
+          column: id
+
+      # Generate a person_id column for each id in the person table
+      - name: person_id
+        type: each
+        processor:
+          table: person
+          column: id
+
+      # Generate an event_id column for each id in the event table
+      - name: event_id
+        type: each
+        processor:
+          table: event
+          column: id
+```
+
+Run the application:
+
+```
+$ dg -c your_config_file.yaml -o your_output_dir -p 3000
+loaded config file                       took: 428µs
+generated table: person                  took: 41ms
+generated table: event                   took: 159µs
+generated table: person_type             took: 42µs
+generated table: person_event            took: 1s
+generated all tables                     took: 1s
+wrote csv: person                        took: 1ms
+wrote csv: event                         took: 139µs
+wrote csv: person_type                   took: 110µs
+wrote csv: person_event                  took: 144ms
+wrote all csvs                           took: 145ms
+```
+
+This will output and dg will then run an HTTP server allow you to import the files from localhost.
+
+```
+your_output_dir
+├── event.csv
+├── person.csv
+├── person_event.csv
+└── person_type.csv
+```
+
+### Importing Data
+
+After generating CSV files, you can import them into your database. Here are a few methods:
+
+#### Import via HTTP
+
+If you run `dg` with the `-p` flag, it will serve the generated CSV files over HTTP. You can then import them directly. Here's an example for CockroachDB:
+
+```sql
+IMPORT INTO "person" ("id")
+CSV DATA (
+    'http://localhost:3000/person.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "event" ("id")
+CSV DATA (
+    'http://localhost:3000/event.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "person_type" ("id", "name")
+CSV DATA (
+    'http://localhost:3000/person_type.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+
+IMPORT INTO "person_event" ("person_id", "event_id", "id", "person_type")
+CSV DATA (
+    'http://localhost:3000/person_event.csv'
+)
+WITH skip='1', nullif = '', allow_quoted_null;
+```
+
+#### Import via psql
+
+If you're working with a PostgreSQL compatible database and have `psql` access, you can use the `\COPY` command:
+
+```sh
+psql "postgres://root@localhost:26257/defaultdb?sslmode=disable" -c "\COPY public.person (id, full_name, date_of_birth, user_type, favourite_animal) FROM './your_output_dir/person.csv' WITH DELIMITER ',' CSV HEADER NULL E''"
+```
+*Note: Adjust the table name, columns, and file path accordingly.*
+
+#### Import via nodelocal (CockroachDB)
+
+If you're using CockroachDB and have access to the `cockroach` binary, you can use `nodelocal upload`:
+
+1. Upload the CSV file to the cluster's storage:
+```sh
+cockroach nodelocal upload ./your_output_dir/person.csv imports/person.csv   --url "postgres://root@localhost:26257?sslmode=disable"
+```
+
+2. Then import the data using the `IMPORT` statement with a `nodelocal` URI:
+```sql
+IMPORT INTO person ("id", "full_name", "date_of_birth", "user_type", "favourite_animal")
+  CSV DATA (
+    'nodelocal://1/imports/person.csv'
+  ) WITH skip = '1';
+```
+*Note: Adjust the table name, columns, and file paths accordingly. The `nodelocal://1/` refers to node 1; adjust if your setup is different.*
+
+## All functions
+
+This section describes the different types of processors available and the functions that can be used within them.
+
+### Processors
+
+Processors define how data is generated for a column.
+
+#### gen
+
+Generate a random value for the column.
+
+*Example:*
+```yaml
+- name: sku
+  type: gen
+  processor:
+    value: SKU${uint16}
+    format: "%05d"
+```
+This configuration will generate a random left-padded `uint16` with a prefix of "SKU" for a column called "sku". `value` contains zero or more function placeholders that can be used to generate data.
+
+Generate a pattern-based value for the column.
+
+*Example:*
+```yaml
+- name: phone
+  type: gen
+  processor:
+    pattern: \d{3}-\d{3}-\d{4}
+```
+This configuration will generate US-format phone number, like 123-456-7890.
+
+#### const
+
+Provide a constant set of values for a column.
+
+*Example:*
+```yaml
+- name: options
+  type: const
+  processor:
+    values: [bed_breakfast, bed]
+```
+This configuration will create a column containing two rows.
+
+#### set
+
+Select a value from a given set.
+
+*Example:*
+```yaml
+- name: user_type
+  type: set
+  processor:
+    values: [admin, regular, read-only]
+```
+This configuration will select between the values "admin", "regular", and "read-only"; each with an equal probability of being selected.
+
+Items in a set can also be given a weight, which will affect their likelihood of being selected.
+
+*Example:*
+```yaml
+- name: favourite_animal
+  type: set
+  processor:
+    values: [rabbit, dog, cat]
+    weights: [10, 60, 30]
+```
+This configuration will select between the values "rabbit", "dog", and "cat"; each with different probabilities of being selected. Rabbits will be selected approximately 10% of the time, dogs 60%, and cats 30%.
+
+#### inc
+
+Generates an incrementing number.
+
+*Example:*
+```yaml
+- name: id
+  type: inc
+  processor:
+    start: 1
+    format: "P%03d"
+```
+This configuration will generate left-padded ids starting from 1, and format them with a prefix of "P".
+
+#### ref
+
+References a value from a previously generated table.
+
+*Example:*
+```yaml
+- name: ptype
+  type: ref
+  processor:
+    table: person_type
+    column: id
+```
+This configuration will choose a random id from the person_type table and create a `ptype` column to store the values. Use the `ref` type if you need to reference another table but don't need to generate a new row for _every_ instance of the referenced column.
+
+#### each
+
+Creates a row for each value in another table. If multiple `each` columns are provided, a Cartesian product of both columns will be generated.
+
+*Example (one `each` column):*
+```yaml
+- name: person
+  count: 3
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- name: pet
+  columns:
+    - name: person_id
+      type: each
+      processor:
+        table: person
+        column: id
+    - name: name
+      type: gen
+      processor:
+        value: first_name
+```
+
+*Example (two `each` columns):*
+```yaml
+- name: person
+  count: 3
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- name: event
+  count: 3
+  columns:
+    - name: id
+      type: gen
+      processor:
+        value: ${uuid}
+
+- name: person_event
+  columns:
+    - name: person_id
+      type: each
+      processor:
+        table: person
+        column: id
+    - name: event_id
+      type: each
+      processor:
+        table: event
+        column: id
+```
+Use the `each` type if you need to reference another table and need to generate a new row for _every_ instance of the referenced column.
+
+#### range
+
+Generates data within a given range. The behavior depends on other factors like `each` generators or `count`.
+
+*Example (integer range):*
+```yaml
+- name: users
+  count: 10000
+  columns:
+    - name: id
+      type: range
+      processor:
+        type: int
+        from: 1
+        step: 1
+```
+
+*Example (date range):*
+```yaml
+- name: event
+  columns:
+    - name: date
+      type: range
+      processor:
+        type: date
+        from: 2020-01-01
+        to: 2023-01-01
+        step: 24h
+        format: 2006-01-02
+```
+Supported data types: `date`, `int`.
+
+#### match
+
+Generates data by matching data in another table.
+
+*Example:*
+```yaml
+inputs:
+  - name: significant_event
+    type: csv
+    source:
+      file_name: significant_dates.csv # Assumed to provide date, event columns
+
+tables:
+  - name: events
+    columns:
+      - name: timeline_date
+        type: range
+        processor:
+          type: date
+          from: 2023-01-09
+          to: 2023-01-13
+          format: 2006-01-02
+          step: 24h
+      - name: timeline_event
+        type: match
+        processor:
+          source_table: significant_event
+          source_column: date
+          source_value: event # Corrected from 'events' to 'event'
+          match_column: timeline_date
+```
+
+### Input Types
+
+Input types define how to load data from external sources.
+
+#### csv
+
+Reads in a CSV file as a table that can be referenced from other tables.
+
+*Example:*
+```yaml
+- name: significant_event
+  type: csv
+  source:
+    file_name: significant_dates.csv
+```
+
+### Available Functions (for `gen` processor)
+
+| Name                           | Type      | Example                                                                                                   |
+| ------------------------------ | --------- | --------------------------------------------------------------------------------------------------------- |
+| ${ach_account}                 | string    | 586981797546                                                                                              |
+| ${ach_routing}                 | string    | 441478502                                                                                                 |
+| ${adjective_demonstrative}     | string    | there                                                                                                     |
+| ${adjective_descriptive}       | string    | eager                                                                                                     |
+| ${adjective_indefinite}        | string    | several                                                                                                   |
+| ${adjective_interrogative}     | string    | whose                                                                                                     |
+| ${adjective_possessive}        | string    | her                                                                                                       |
+| ${adjective_proper}            | string    | Iraqi                                                                                                     |
+| ${adjective_quantitative}      | string    | sufficient                                                                                                |
+| ${adjective}                   | string    | double                                                                                                    |
+| ${adverb_degree}               | string    | far                                                                                                       |
+| ${adverb_frequency_definite}   | string    | daily                                                                                                     |
+| ${adverb_frequency_indefinite} | string    | always                                                                                                    |
+| ${adverb_manner}               | string    | unexpectedly                                                                                              |
+| ${adverb_place}                | string    | here                                                                                                      |
+| ${adverb_time_definite}        | string    | yesterday                                                                                                 |
+| ${adverb_time_indefinite}      | string    | just                                                                                                      |
+| ${adverb}                      | string    | far                                                                                                       |
+| ${animal_type}                 | string    | mammals                                                                                                   |
+| ${animal}                      | string    | ape                                                                                                       |
+| ${app_author}                  | string    | RedLaser                                                                                                  |
+| ${app_name}                    | string    | SlateBlueweek                                                                                             |
+| ${app_version}                 | string    | 3.2.10                                                                                                    |
+| ${bitcoin_address}             | string    | 16YmZ5ol5aXKjilZT2c2nIeHpbq                                                                               |
+| ${bitcoin_private_key}         | string    | 5JzwyfrpHRoiA59Y1Pd9yLq52cQrAXxSNK4QrGrRUxkak5Howhe                                                       |
+| ${bool}                        | bool      | true                                                                                                      |
+| ${breakfast}                   | string    | Awesome orange chocolate muffins                                                                          |
+| ${bs}                          | string    | leading-edge                                                                                              |
+| ${car_fuel_type}               | string    | LPG                                                                                                       |
+| ${car_maker}                   | string    | Seat                                                                                                      |
+| ${car_model}                   | string    | Camry Solara Convertible                                                                                  |
+| ${car_transmission_type}       | string    | Manual                                                                                                    |
+| ${car_type}                    | string    | Passenger car mini                                                                                        |
+| ${chrome_user_agent}           | string    | Mozilla/5.0 (X11; Linux i686) AppleWebKit/5310 (KHTML, like Gecko) Chrome/37.0.882.0 Mobile Safari/5310   |
+| ${city}                        | string    | Memphis                                                                                                   |
+| ${color}                       | string    | DarkBlue                                                                                                  |
+| ${company_suffix}              | string    | LLC                                                                                                       |
+| ${company}                     | string    | PlanetEcosystems                                                                                          |
+| ${connective_casual}           | string    | an effect of                                                                                              |
+| ${connective_complaint}        | string    | i.e.                                                                                                      |
+| ${connective_examplify}        | string    | for example                                                                                               |
+| ${connective_listing}          | string    | next                                                                                                      |
+| ${connective_time}             | string    | soon                                                                                                      |
+| ${connective}                  | string    | for instance                                                                                              |
+| ${country_abr}                 | string    | VU                                                                                                        |
+| ${country}                     | string    | Eswatini                                                                                                  |
+| ${credit_card_cvv}             | string    | 315                                                                                                       |
+| ${credit_card_exp}             | string    | 06/28                                                                                                     |
+| ${credit_card_type}            | string    | Mastercard                                                                                                |
+| ${currency_long}               | string    | Mozambique Metical                                                                                        |
+| ${currency_short}              | string    | SCR                                                                                                       |
+| ${date}                        | time.Time | 2005-01-25 22:17:55.371781952 +0000 UTC                                                                   |
+| ${day}                         | int       | 27                                                                                                        |
+| ${dessert}                     | string    | Chocolate coconut dream bars                                                                              |
+| ${dinner}                      | string    | Creole potato salad                                                                                       |
+| ${domain_name}                 | string    | centralb2c.net                                                                                            |
+| ${domain_suffix}               | string    | com                                                                                                       |
+| ${email}                       | string    | ethanlebsack@lynch.name                                                                                   |
+| ${emoji}                       | string    | ♻️                                                                                                        |
+| ${file_extension}              | string    | csv                                                                                                       |
+| ${file_mime_type}              | string    | image/vasa                                                                                                |
+| ${firefox_user_agent}          | string    | Mozilla/5.0 (X11; Linux x86_64; rv:6.0) Gecko/1951-07-21 Firefox/37.0                                     |
+| ${first_name}                  | string    | Kailee                                                                                                    |
+| ${flipacoin}                   | string    | Tails                                                                                                     |
+| ${float32}                     | float32   | 2.7906555e+38                                                                                             |
+| ${float64}                     | float64   | 4.314310154193861e+307                                                                                    |
+| ${fruit}                       | string    | Eggplant                                                                                                  |
+| ${gender}                      | string    | female                                                                                                    |
+| ${hexcolor}                    | string    | #6daf06                                                                                                   |
+| ${hobby}                       | string    | Bowling                                                                                                   |
+| ${hour}                        | int       | 18                                                                                                        |
+| ${http_method}                 | string    | DELETE                                                                                                    |
+| ${http_status_code_simple}     | int       | 404                                                                                                       |
+| ${http_status_code}            | int       | 503                                                                                                       |
+| ${http_version}                | string    | HTTP/1.1                                                                                                  |
+| ${int16}                       | int16     | 18940                                                                                                     |
+| ${int32}                       | int32     | 2129368442                                                                                                |
+| ${int64}                       | int64     | 5051946056392951363                                                                                       |
+| ${int8}                        | int8      | 110                                                                                                       |
+| ${ipv4_address}                | string    | 191.131.155.85                                                                                            |
+| ${ipv6_address}                | string    | 1642:94b:52d8:3a4e:38bc:4d87:846e:9c83                                                                    |
+| ${job_descriptor}              | string    | Senior                                                                                                    |
+| ${job_level}                   | string    | Identity                                                                                                  |
+| ${job_title}                   | string    | Executive                                                                                                 |
+| ${language_abbreviation}       | string    | kn                                                                                                        |
+| ${language}                    | string    | Bengali                                                                                                   |
+| ${last_name}                   | string    | Friesen                                                                                                   |
+| ${latitude}                    | float64   | 45.919913                                                                                                 |
+| ${longitude}                   | float64   | -110.313125                                                                                               |
+| ${lunch}                       | string    | Sweet and sour pork balls                                                                                 |
+| ${mac_address}                 | string    | bd:e8:ce:66:da:5b                                                                                         |
+| ${minute}                      | int       | 23                                                                                                        |
+| ${month_string}                | string    | April                                                                                                     |
+| ${month}                       | int       | 10                                                                                                        |
+| ${name_prefix}                 | string    | Ms.                                                                                                       |
+| ${name_suffix}                 | string    | I                                                                                                         |
+| ${name}                        | string    | Paxton Schumm                                                                                             |
+| ${nanosecond}                  | int       | 349669923                                                                                                 |
+| ${nicecolors}                  | []string  | [#490a3d #bd1550 #e97f02 #f8ca00 #8a9b0f]                                                                 |
+| ${noun_abstract}               | string    | timing                                                                                                    |
+| ${noun_collective_animal}      | string    | brace                                                                                                     |
+| ${noun_collective_people}      | string    | mob                                                                                                       |
+| ${noun_collective_thing}       | string    | orchard                                                                                                   |
+| ${noun_common}                 | string    | problem                                                                                                   |
+| ${noun_concrete}               | string    | town                                                                                                      |
+| ${noun_countable}              | string    | cat                                                                                                       |
+| ${noun_uncountable}            | string    | wisdom                                                                                                    |
+| ${noun}                        | string    | case                                                                                                      |
+| ${opera_user_agent}            | string    | Opera/10.10 (Windows NT 5.01; en-US) Presto/2.11.165 Version/13.00                                        |
+| ${password}                    | string    | 1k0vWN 9Z                                                                                                 | 4f={B YPRda4ys. |
+| ${pet_name}                    | string    | Bernadette                                                                                                |
+| ${phone_formatted}             | string    | (476)455-2253                                                                                             |
+| ${phone}                       | string    | 2692528685                                                                                                |
+| ${phrase}                      | string    | I'm straight                                                                                              |
+| ${preposition_compound}        | string    | ahead of                                                                                                  |
+| ${preposition_double}          | string    | next to                                                                                                   |
+| ${preposition_simple}          | string    | at                                                                                                        |
+| ${preposition}                 | string    | outside of                                                                                                |
+| ${programming_language}        | string    | PL/SQL                                                                                                    |
+| ${pronoun_demonstrative}       | string    | those                                                                                                     |
+| ${pronoun_interrogative}       | string    | whom                                                                                                      |
+| ${pronoun_object}              | string    | us                                                                                                        |
+| ${pronoun_personal}            | string    | I                                                                                                         |
+| ${pronoun_possessive}          | string    | mine                                                                                                      |
+| ${pronoun_reflective}          | string    | yourself                                                                                                  |
+| ${pronoun_relative}            | string    | whom                                                                                                      |
+| ${pronoun}                     | string    | those                                                                                                     |
+| ${quote}                       | string    | "Raw denim tilde cronut mlkshk photo booth kickstarter." - Gunnar Rice                                    |
+| ${rgbcolor}                    | []int     | [152 74 172]                                                                                              |
+| ${safari_user_agent}           | string    | Mozilla/5.0 (Windows; U; Windows 95) AppleWebKit/536.41.5 (KHTML, like Gecko) Version/5.2 Safari/536.41.5 |
+| ${safecolor}                   | string    | gray                                                                                                      |
+| ${second}                      | int       | 58                                                                                                        |
+| ${snack}                       | string    | Crispy fried chicken spring rolls                                                                         |
+| ${ssn}                         | string    | 783135577                                                                                                 |
+| ${state_abr}                   | string    | AL                                                                                                        |
+| ${state}                       | string    | Kentucky                                                                                                  |
+| ${street_name}                 | string    | Way                                                                                                       |
+| ${street_number}               | string    | 6234                                                                                                      |
+| ${street_prefix}               | string    | Port                                                                                                      |
+| ${street_suffix}               | string    | stad                                                                                                      |
+| ${street}                      | string    | 11083 Lake Fall mouth                                                                                     |
+| ${time_zone_abv}               | string    | ADT                                                                                                       |
+| ${time_zone_full}              | string    | (UTC-02:00) Coordinated Universal Time-02                                                                 |
+| ${time_zone_offset}            | float32   | 3                                                                                                         |
+| ${time_zone_region}            | string    | Asia/Aqtau                                                                                                |
+| ${time_zone}                   | string    | Mountain Standard Time (Mexico)                                                                           |
+| ${uint128_hex}                 | string    | 0xcd50930d5bc0f2e8fa36205e3d7bd7b2                                                                        |
+| ${uint16_hex}                  | string    | 0x7c80                                                                                                    |
+| ${uint16}                      | uint16    | 25076                                                                                                     |
+| ${uint256_hex}                 | string    | 0x61334b8c51fa841bf9a3f1f0ac3750cd1b51ca2046b0fb75627ac73001f0c5aa                                        |
+| ${uint32_hex}                  | string    | 0xfe208664                                                                                                |
+| ${uint32}                      | uint32    | 783098878                                                                                                 |
+| ${uint64_hex}                  | string    | 0xc8b91dc44e631956                                                                                        |
+| ${uint64}                      | uint64    | 5722659847801560283                                                                                       |
+| ${uint8_hex}                   | string    | 0x65                                                                                                      |
+| ${uint8}                       | uint8     | 192                                                                                                       |
+| ${url}                         | string    | https://www.leadcutting-edge.net/productize                                                               |
+| ${user_agent}                  | string    | Opera/10.64 (Windows NT 5.2; en-US) Presto/2.13.295 Version/10.00                                         |
+| ${username}                    | string    | Gutmann2845                                                                                               |
+| ${uuid}                        | string    | e6e34ff4-1def-41e5-9afb-f697a51c0359                                                                      |
+| ${vegetable}                   | string    | Tomato                                                                                                    |
+| ${verb_action}                 | string    | knit                                                                                                      |
+| ${verb_helping}                | string    | did                                                                                                       |
+| ${verb_linking}                | string    | has                                                                                                       |
+| ${verb}                        | string    | be                                                                                                        |
+| ${weekday}                     | string    | Tuesday                                                                                                   |
+| ${word}                        | string    | month                                                                                                     |
+| ${year}                        | int       | 1962                                                                                                      |
+| ${zip}                         | string    | 45618                                                                                                     |
+
+_Note: In the original README, the `match` processor example had `source_value: events`. This has been corrected to `source_value: event` assuming 'event' is the column name in the `significant_event` source table that contains the value to be matched._
+
+## All examples
+
+This section provides various examples of `config.yaml` files.
+
+### const_test
+```yaml
+tables:
+  - name: one
+    columns:
+      - name: c1
+        type: const
+        processor:
+          values: [a, b, c]
+
+  - name: two
+    columns:
+      - name: c1
+        type: const
+        processor:
+          values: [a, b, c, d, e]
+      
+      - name: c2
+        type: const
+        processor:
+          values: [a, b]
+  
+  - name: three
+    columns:
+      - name: c1
+        type: const
+        processor:
+          values: [a, b]
+      
+      - name: c2
+        type: const
+        processor:
+          values: [a, b, c, d, e]
+```
+
+### each_match_test
+```yaml
+inputs:
+
+  - name: market
+    type: csv
+    source:
+      file_name: market.csv
+
+tables:
+  
+  - name: product
+    count: 1
+    unique_columns: [name]
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: name
+        type: gen
+        processor:
+          value: ${adjective} ${adverb} ${noun}
+
+  - name: market_product
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: product_id
+        type: each
+        processor:
+          table: product
+          column: id
+      - name: market
+        type: each
+        processor:
+          table: market
+          column: code
+      - name: region
+        type: match
+        processor:
+          source_table: market
+          source_column: code
+          source_value: region
+          match_column: market
+```
+
+### input_test
+```yaml
+inputs:
+  - name: significant_event
+    type: csv
+    source:
+      file_name: significant_dates.csv
+
+tables:
+  - name: events
+    columns:
+      - name: timeline_date
+        type: range
+        processor:
+          type: date
+          from: 1885-01-01
+          to: 1985-10-26
+          format: 2006-01-02
+          step: 24h
+      - name: timeline_event
+        type: match
+        processor:
+          source_table: significant_event
+          source_column: date
+          source_value: events
+          match_column: timeline_date
+```
+
+### many_to_many
+```yaml
+tables:
+  # Create data for a person table.
+  - name: person
+    count: 10000
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+  # Create data for an event table.
+  - name: event
+    count: 100
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+  # Create data for a person_type table, with 5 rows.
+  - name: person_type
+    count: 5
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+      - name: name
+        type: gen
+        processor:
+          value: TYPE-${uint16}
+          format: "%05d"
+
+  # Create data for a person_event many-to-many resolver table between
+  # the person and event tables.
+  - name: person_event
+    columns:
+      - name: person_id
+        type: each
+        processor:
+          table: person
+          column: id
+
+      - name: event_id
+        type: each
+        processor:
+          table: event
+          column: id
+```
+
+### match_test
+```yaml
+inputs:
+
+  - name: market
+    type: csv
+    source:
+      file_name: market.csv
+
+tables:
+
+  - name: market_product
+    count: 10
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: market
+        type: set
+        processor:
+          values: ["us", "in"]
+      - name: region
+        type: match
+        processor:
+          source_table: market
+          source_column: code
+          source_value: region
+          match_column: market
+```
+
+### pattern_test
+```yaml
+tables:
+  # Generate data for a person table using the pattern generator.
+  - name: person
+    count: 1000
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: mobile
+        type: gen
+        processor:
+          pattern: \d{3}-\d{3}-\d{4}
+```
+
+### person
+```yaml
+tables:
+  # Generate data for a person table, showing off a couple of column generators.
+  - name: person
+    count: 100000
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+      - name: full_name
+        type: gen
+        processor:
+          value: ${name_prefix} ${first_name} ${last_name}
+      - name: date_of_birth
+        type: gen
+        processor:
+          value: ${date}
+          format: 2006-01-02
+      - name: user_type
+        type: set
+        processor:
+          values: [admin, regular, read-only]
+      - name: favourite_animal
+        type: set
+        processor:
+          values: [rabbit, dog, cat]
+          weights: [10, 60, 30]
+```
+
+### range_test
+```yaml
+tables:
+  - name: auto_incrementing_id
+    count: 20
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+  
+  - name: bet_types
+    columns:
+      - name: id
+        type: range
+        processor:
+          type: int
+          from: 1
+          step: 1
+      - name: description
+        type: const
+        processor:
+          values: [Win, Lose, Draw]
+
+  - name: previous_table
+    count: 20
+    columns:
+      - name: id
+        type: gen
+        processor:
+          value: ${uuid}
+
+  - name: each_test
+    count: 10         # Ignored due to count from "each" generator.
+    columns:
+      - name: id
+        type: each
+        processor:
+          table: previous_table
+          column: id
+      - name: should_have_20
+        type: range
+        processor:
+          type: date
+          from: 2020-01-01
+          to: 2023-01-01
+          format: 2006-01-02
+          step: 1h    # Ignored due to count from "each" generator.
+
+  - name: count_test
+    count: 10
+    columns:
+      - name: should_have_10
+        type: range
+        processor:
+          type: date
+          from: 2020-01-01
+          to: 2023-01-01
+          format: 2006-01-02
+          step: 1h    # Ignored due to count value.
+
+  - name: step_test
+    columns:
+      - name: should_have_37
+        type: range
+        processor:
+          type: date
+          from: 2020-01-01
+          to: 2023-01-01
+          format: 2006-01-02
+          step: 730h    # Ignored due to count value.
+```
+
+### supress_column
+```yaml
+tables:
+
+  - name: example
+    count: 1
+    columns:
+    
+      - name: one
+        type: gen
+        processor:
+          value: ${uint8}
+      
+      - name: two
+        suppress: true
+        type: gen
+        processor:
+          value: ${uint64}
+```
+
+### unique_test
+```yaml
+tables:
+  - name: person
+    unique_columns: [col_a, col_b]
+    count: 10
+    columns:
+
+      - name: col_a
+        type: set
+        processor:
+          values: [a, b, c]
+      
+      - name: col_b
+        type: set
+        processor:
+          values: [d, e, f]
+      
+      - name: col_c
+        type: set
+        processor:
+          values: [g, h, i]
+```
